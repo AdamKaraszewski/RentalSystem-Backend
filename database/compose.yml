@@ -1,10 +1,12 @@
+name: rental_system_infrastructure
+
 services:
 
   database:
     image: postgres:latest
-    container_name: rental_system_db
+    container_name: database_rental_system
     ports:
-      - ${DB_PORT}:8080
+      - ${DB_PORT}:5432
     volumes:
       - ./database_data:/var/lib/postgres/data
       - ./database-roles-init.sql:/docker-entrypoint-initdb.d/init1.sql
