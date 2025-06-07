@@ -24,7 +24,7 @@ import java.util.Properties;
 @EnableJpaRepositories(entityManagerFactoryRef = "initEntityMangerFactory")
 public class InitDataSourceConfig {
 
-    @Value("${datasource.database-init.url}")
+    @Value("${datasource.database.url}")
     private String url;
 
     @Value("${datasource.database-init.username}")

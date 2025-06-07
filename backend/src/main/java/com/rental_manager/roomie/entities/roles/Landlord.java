@@ -5,9 +5,11 @@ import com.rental_manager.roomie.entities.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = DatabaseStructures.TABLE_LANDLORD_DATA)
+@NoArgsConstructor
 public class Landlord extends Role {
 
     @Column(name = DatabaseStructures.SIMPLE_COLUMN)

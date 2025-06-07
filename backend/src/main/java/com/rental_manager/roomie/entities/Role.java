@@ -30,6 +30,12 @@ public abstract class Role extends AbstractEntity {
     @JoinColumn(name = DatabaseStructures.ACCOUNT_ID_COLUMN, nullable = false)
     private Account account;
 
+    public Role(RolesEnum role, Account account) {
+        this.isActive = true;
+        this.role = role;
+        this.account = account;
+    }
+
     @Override
     public int hashCode() {
         return role.hashCode();

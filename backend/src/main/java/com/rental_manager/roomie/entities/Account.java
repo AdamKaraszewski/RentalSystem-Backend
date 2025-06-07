@@ -46,20 +46,34 @@ public class Account extends AbstractEntity {
 
     @Column(name = DatabaseStructures.IS_ACTIVE_COLUMN, nullable = false)
     @Getter @Setter
-    private boolean isActive;
+    private boolean isActive = true;
 
     @Column(name = DatabaseStructures.IS_VERIFIED_COLUMN, nullable = false)
     @Getter @Setter
-    private boolean isVerified;
+    private boolean isVerified = false;
 
     @Column(name = DatabaseStructures.PASSWORD_COLUMN, nullable = false,
             length = DatabaseConstraints.PASSWORD_MAX_LENGTH)
     @Getter @Setter
     private String password;
 
-    @OneToMany(mappedBy = "account")
-    private Set<Role> roles = new HashSet<>();
+    @OneToMany(mappedBy = "account", cascade = CascadeType.PERSIST)
+    @Getter
+    private final Set<Role> roles = new HashSet<>();
 
-    @OneToOne(mappedBy = "account")
+    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST)
+    @Setter
     private VerificationToken verificationToken;
+
+    public void addRole(Role role) {
+        roles.add(role);
+    }
+
+    public Account(String firstName, String lastName, String username, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 }

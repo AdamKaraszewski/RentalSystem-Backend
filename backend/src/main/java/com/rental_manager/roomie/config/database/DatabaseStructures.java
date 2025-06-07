@@ -8,7 +8,7 @@ public class DatabaseStructures {
     public final static String TABLE_ACCOUNT_ROLE = "ACCOUNT_ROLE";
     public final static String TABLE_CLIENT_DATA = "CLIENT_DATA";
     public final static String TABLE_ADMIN_DATA = "ADMIN_DATA";
-    public final static String TABLE_LANDLORD_DATA = "LANDLORD";
+    public final static String TABLE_LANDLORD_DATA = "LANDLORD_DATA";
     public final static String TABLE_EMAIL_VERIFICATION_TOKENS = "EMAIL_VERIFICATION_TOKENS";
 
     // ABSTRACT ENTITY

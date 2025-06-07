@@ -3,11 +3,13 @@ package com.rental_manager.roomie.entities;
 import com.rental_manager.roomie.config.database.DatabaseConstraints;
 import com.rental_manager.roomie.config.database.DatabaseStructures;
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = DatabaseStructures.TABLE_EMAIL_VERIFICATION_TOKENS)
+@NoArgsConstructor
 public class VerificationToken extends AbstractEntity {
 
     @Column(name = DatabaseStructures.TOKEN_VALUE_COLUMN, updatable = false, nullable = false, unique = true,
@@ -21,4 +23,10 @@ public class VerificationToken extends AbstractEntity {
     @JoinColumn(name = DatabaseStructures.ACCOUNT_ID_COLUMN, referencedColumnName = DatabaseStructures.ID_COLUMN,
             updatable = false)
     private Account account;
+
+    public VerificationToken(String tokenValue , Account account, long tokenLifeTime) {
+        this.tokenValue = tokenValue;
+        this.account = account;
+        this.expirationDate = LocalDateTime.now().plusMinutes(tokenLifeTime);
+    }
 }
