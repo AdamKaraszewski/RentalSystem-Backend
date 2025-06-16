@@ -10,6 +10,7 @@ public class DatabaseStructures {
     public final static String TABLE_ADMIN_DATA = "ADMIN_DATA";
     public final static String TABLE_LANDLORD_DATA = "LANDLORD_DATA";
     public final static String TABLE_EMAIL_VERIFICATION_TOKENS = "EMAIL_VERIFICATION_TOKENS";
+    public final static String TABLE_RESET_PASSWORD_TOKENS = "RESET_PASSWORD_TOKENS";
 
     // ABSTRACT ENTITY
     public final static String ID_COLUMN = "ID";
@@ -34,8 +35,9 @@ public class DatabaseStructures {
     // ACCOUNT_ROLE COLUMNS
     public final static String ROLE_NAME_COLUMN = "ROLE_NAME";
 
-    // EMAIL_VERIFICATION_TOKEN
+    // EMAIL_VERIFICATION_TOKEN & RESET_PASSWORD_TOKEN
     public final static String TOKEN_VALUE_COLUMN = "TOKEN_VALUE";
+    public final static String WAS_USED = "WAS_USED";
 
 
 }

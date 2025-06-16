@@ -1,4 +1,4 @@
-package com.rental_manager.roomie.account_module.controllers;
+package com.rental_manager.roomie.account_module.controllers.interfaces;
 
 import com.rental_manager.roomie.account_module.dtos.RegisterClientDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,7 +12,7 @@ public interface IRegisterAccountController {
     @Operation(summary = "Register account with Client role",
             description = "Endpoint provides account registration. The HTTP request must contain RegisterClientDTO in its body.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201 CREATED", description = "Account successfully created. Verification email will be send.")
+            @ApiResponse(responseCode = "201", description = "Account successfully created. Verification email will be send.")
     })
     ResponseEntity<Void> registerClientAccount(@RequestBody RegisterClientDTO registerClientDTO);
 }

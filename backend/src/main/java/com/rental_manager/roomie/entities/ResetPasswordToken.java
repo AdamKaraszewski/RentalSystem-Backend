@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = DatabaseStructures.TABLE_EMAIL_VERIFICATION_TOKENS)
+@Table(name = DatabaseStructures.TABLE_RESET_PASSWORD_TOKENS)
 @NoArgsConstructor
-public class VerificationToken extends OneTimeUseToken {
+public class ResetPasswordToken extends OneTimeUseToken {
 
-    @Column(name = DatabaseStructures.TOKEN_VALUE_COLUMN, updatable = false, nullable = false, unique = true,
-            length = DatabaseConstraints.EMAIL_VERIFICATION_TOKEN_LENGTH)
+    @Column(name = DatabaseStructures.TOKEN_VALUE_COLUMN, unique = true, updatable = false, nullable = false,
+            length = DatabaseConstraints.RESET_PASSWORD_TOKEN_LENGTH)
     private String tokenValue;
 
-    public VerificationToken(String tokenValue , Account account, long tokenLifeTime) {
+        public ResetPasswordToken(String tokenValue, Account account, long tokenLifeTime) {
         super(account, LocalDateTime.now().plusMinutes(tokenLifeTime));
         this.tokenValue = tokenValue;
     }

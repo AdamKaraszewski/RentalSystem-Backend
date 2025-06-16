@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -43,10 +44,15 @@ public class AccountModuleDataSourceConfig {
     public LocalContainerEntityManagerFactoryBean accountModuleEntityManagerFactory(
             EntityManagerFactoryBuilder builder, @Qualifier("accountModuleDataSource") DataSource dataSource) {
 
-        return builder.dataSource(dataSource)
+        LocalContainerEntityManagerFactoryBean em = builder.dataSource(dataSource)
                 .persistenceUnit("accountModulePU")
                 .packages("com.rental_manager.roomie.entities")
                 .build();
+
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        vendorAdapter.setShowSql(true);
+        em.setJpaVendorAdapter(vendorAdapter);
+        return em;
     }
 
     @Bean(name = "accountModuleTransactionManager")

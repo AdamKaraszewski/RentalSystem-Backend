@@ -9,6 +9,7 @@ public class DatabaseConstraints {
     public static final int PASSWORD_MAX_LENGTH = 64;
 
     public static final int EMAIL_VERIFICATION_TOKEN_LENGTH = 128;
+    public static final int RESET_PASSWORD_TOKEN_LENGTH = 128;
 
     public static final String UNIQUE_USERNAME_INDEX = "UNIQUE_USERNAME_INDEX";
     public static final String UNIQUE_ACCOUNT_ID = "UNIQUE_ACCOUNT_ID";

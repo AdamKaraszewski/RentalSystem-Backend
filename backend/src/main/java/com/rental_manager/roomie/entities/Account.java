@@ -61,9 +61,13 @@ public class Account extends AbstractEntity {
     @Getter
     private final Set<Role> roles = new HashSet<>();
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST)
-    @Setter
-    private VerificationToken verificationToken;
+//    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+//    @Setter @Getter
+//    private VerificationToken verificationToken;
+//
+//    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+//    @Setter @Getter
+//    private ResetPasswordToken resetPasswordToken;
 
     public void addRole(Role role) {
         roles.add(role);
