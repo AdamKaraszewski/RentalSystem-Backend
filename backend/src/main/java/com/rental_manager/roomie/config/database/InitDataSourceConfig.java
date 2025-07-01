@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@Profile("dev")
+@Profile({"dev", "test"})
 @EnableJpaRepositories(entityManagerFactoryRef = "initEntityMangerFactory")
 public class InitDataSourceConfig {
 
