@@ -37,7 +37,15 @@ public abstract class Role extends AbstractEntity {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Role)) return false;
+        Role role1 = (Role) o;
+        return role1.getRole() == this.role;
+    }
+
+    @Override
     public int hashCode() {
-        return role.hashCode();
+        return role.name().hashCode();
     }
 }

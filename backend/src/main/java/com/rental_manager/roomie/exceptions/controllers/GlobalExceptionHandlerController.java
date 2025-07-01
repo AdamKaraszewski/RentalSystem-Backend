@@ -1,5 +1,7 @@
 package com.rental_manager.roomie.exceptions.controllers;
 
+import com.rental_manager.roomie.exceptions.business_logic_exceptions.BusinessLogicConflictException;
+import com.rental_manager.roomie.exceptions.dtos.BusinessLogicExceptionDTO;
 import com.rental_manager.roomie.exceptions.dtos.ValidationExceptionDTO;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.ResourceNotFoundException;
 import com.rental_manager.roomie.exceptions.dtos.ResourceNotFoundExceptionDTO;
@@ -25,5 +27,12 @@ public class GlobalExceptionHandlerController {
         ValidationExceptionDTO responseBody =
                 new ValidationExceptionDTO(ve.getMessage());
         return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {BusinessLogicConflictException.class})
+    public ResponseEntity<BusinessLogicExceptionDTO> handleBusinessLogicConflictException(BusinessLogicConflictException ble) {
+        BusinessLogicExceptionDTO responseBody =
+                new BusinessLogicExceptionDTO(ble.getMessage());
+        return new ResponseEntity<>(responseBody, HttpStatus.CONFLICT);
     }
 }

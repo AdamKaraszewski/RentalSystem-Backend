@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -57,17 +59,9 @@ public class Account extends AbstractEntity {
     @Getter @Setter
     private String password;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     @Getter
     private final Set<Role> roles = new HashSet<>();
-
-//    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-//    @Setter @Getter
-//    private VerificationToken verificationToken;
-//
-//    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-//    @Setter @Getter
-//    private ResetPasswordToken resetPasswordToken;
 
     public void addRole(Role role) {
         roles.add(role);

@@ -1,6 +1,7 @@
 package com.rental_manager.roomie.entities.roles;
 
 import com.rental_manager.roomie.config.database.DatabaseStructures;
+import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,4 +15,9 @@ public class Landlord extends Role {
 
     @Column(name = DatabaseStructures.SIMPLE_COLUMN)
     private String simpleColumn;
+
+    public Landlord(Account account) {
+        super(RolesEnum.LANDLORD, account);
+        this.simpleColumn = "LANDLORD_SIMPLE_COLUMN_EXAMPLE_VALUE";
+    }
 }
