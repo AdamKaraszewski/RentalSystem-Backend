@@ -4,7 +4,7 @@ import com.rental_manager.roomie.account_module.controllers.interfaces.IRegister
 import com.rental_manager.roomie.account_module.dtos.RegisterClientDTO;
 import com.rental_manager.roomie.account_module.services.implementations.AccountService;
 import com.rental_manager.roomie.account_module.services.interfaces.IAccountService;
-import com.rental_manager.roomie.account_module.utils.Converter;
+import com.rental_manager.roomie.account_module.utils.AccountConverter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +25,7 @@ public class RegisterAccountController implements IRegisterAccountController {
     @Override
     @PostMapping
     public ResponseEntity<Void> registerClientAccount(@RequestBody RegisterClientDTO registerClientDTO) {
-        accountService.registerClient(Converter.convertRegisterClientDTOToAccount(registerClientDTO));
+        accountService.registerClient(AccountConverter.convertRegisterClientDTOToAccount(registerClientDTO));
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

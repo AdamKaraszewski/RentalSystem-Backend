@@ -16,6 +16,5 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
     VerificationToken saveAndFlush(VerificationToken verificationToken);
 
     @Transactional(propagation = Propagation.MANDATORY)
-    Optional<VerificationToken> findByTokenValueAndExpirationDateAfterAndAccount_isVerifiedFalse(
-            String tokenValue, LocalDateTime date);
+    Optional<VerificationToken> findByTokenValueAndExpirationDateAfter(String tokenValue, LocalDateTime date);
 }

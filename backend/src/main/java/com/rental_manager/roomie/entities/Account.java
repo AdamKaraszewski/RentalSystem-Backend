@@ -3,14 +3,9 @@ package com.rental_manager.roomie.entities;
 import com.rental_manager.roomie.config.database.DatabaseConstraints;
 import com.rental_manager.roomie.config.database.DatabaseStructures;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = DatabaseStructures.TABLE_ACCOUNTS, uniqueConstraints = {

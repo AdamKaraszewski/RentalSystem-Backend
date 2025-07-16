@@ -8,7 +8,6 @@ import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.ResetPasswordToken;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.ResetPasswordTokenDoesNotMatchException;
-import com.rental_manager.roomie.exceptions.validation_exceptions.PasswordDoesNotMatchException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,22 +15,22 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.util.Objects;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
 @Service
 public class ResetPasswordService implements IResetPasswordService {
 
-    @Value("${reset.password.token.life-time.minutes}")
-    private long tokenLifeTime;
-
+    private final long tokenLifeTime;
     private final AccountRepository accountRepository;
     private final ResetPasswordTokenRepository resetPasswordTokenRepository;
     private final Random randomGenerator = new SecureRandom();
 
-    public ResetPasswordService(AccountRepository accountRepository,
+    public ResetPasswordService(@Value("${reset.password.token.life-time.minutes}") long tokenLifeTime,
+                                AccountRepository accountRepository,
                                 ResetPasswordTokenRepository resetPasswordTokenRepository) {
+        this.tokenLifeTime = tokenLifeTime;
         this.accountRepository = accountRepository;
         this.resetPasswordTokenRepository = resetPasswordTokenRepository;
     }
@@ -53,11 +52,9 @@ public class ResetPasswordService implements IResetPasswordService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
     public void resetPassword(String tokenValue, String newPassword, String repeatNewPassword) throws
-            PasswordDoesNotMatchException, ResetPasswordTokenDoesNotMatchException {
-        if (!Objects.equals(newPassword, repeatNewPassword)) {
-            throw new PasswordDoesNotMatchException();
-        }
-        ResetPasswordToken resetPasswordToken = resetPasswordTokenRepository.findByTokenValue(tokenValue)
+            ResetPasswordTokenDoesNotMatchException {
+        ResetPasswordToken resetPasswordToken = resetPasswordTokenRepository.findByTokenValueAndExpirationDateAfter(
+                tokenValue, LocalDateTime.now())
                 .orElseThrow(ResetPasswordTokenDoesNotMatchException::new);
         Account account = resetPasswordToken.getAccount();
         account.setPassword(newPassword);

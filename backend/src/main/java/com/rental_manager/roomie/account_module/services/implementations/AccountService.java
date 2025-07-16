@@ -24,20 +24,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.function.Function;
 
 @Service
 public class AccountService implements IAccountService {
 
-    @Value("${email.verification.token.life-time.minutes}")
-    private long tokenLifeTime;
+    private final long tokenLifeTime;
 
     private final AccountRepository accountRepository;
     private final VerificationTokenRepository verificationTokenRepository;
 
     private final Random randomGenerator = new SecureRandom();
 
-    public AccountService(AccountRepository accountRepository,
+    public AccountService(@Value("${email.verification.token.life-time.minutes}") long tokenLifeTime,
+                          AccountRepository accountRepository,
                           VerificationTokenRepository verificationTokenRepository) {
+        this.tokenLifeTime = tokenLifeTime;
         this.accountRepository = accountRepository;
         this.verificationTokenRepository = verificationTokenRepository;
     }
@@ -59,9 +61,9 @@ public class AccountService implements IAccountService {
     public void addRole(UUID accountId, RolesEnum roleName) throws AccountNotFoundException, RoleAlreadyOwnedException {
         Account account = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
         switch (roleName) {
-            case RolesEnum.ADMIN -> addAdminRole(account);
-            case RolesEnum.CLIENT -> addClientRole(account);
-            case RolesEnum.LANDLORD -> addLandlordRole(account);
+            case RolesEnum.ADMIN -> addRole(account, roleName, Admin::new);
+            case RolesEnum.CLIENT -> addRole(account, roleName, Client::new);
+            case RolesEnum.LANDLORD -> addRole(account, roleName, Landlord::new);
         }
     }
 
@@ -86,55 +88,20 @@ public class AccountService implements IAccountService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY, transactionManager = "accountModuleTransactionManager")
-    private void addAdminRole(Account account) throws RoleAlreadyOwnedException {
-        Optional<Role> role = account.getRoles().stream()
-                .filter(r -> r.getRole() == RolesEnum.ADMIN)
+    private void addRole(Account account, RolesEnum roleName, Function<Account, Role> roleConstructor) throws
+            RoleAlreadyOwnedException {
+        Optional<Role> roleToBeActivated = account.getRoles().stream()
+                .filter(r -> r.isActive() && r.getRole() == roleName)
                 .findFirst();
-        if (role.isPresent()) {
-           if (role.get().isActive()) {
-               throw new RoleAlreadyOwnedException();
-           } else {
-               role.get().setActive(true);
-           }
-        } else {
-            Role adminRole = new Admin(account);
-            account.addRole(adminRole);
-        }
-        accountRepository.saveAndFlush(account);
-    }
-
-    @Transactional(propagation = Propagation.MANDATORY, transactionManager = "accountModuleTransactionManager")
-    private void addClientRole(Account account) throws RoleAlreadyOwnedException {
-        Optional<Role> role = account.getRoles().stream()
-                .filter(r -> r.getRole() == RolesEnum.CLIENT)
-                .findFirst();
-        if (role.isPresent()) {
-            if (role.get().isActive()) {
+        if(roleToBeActivated.isPresent()) {
+            if (roleToBeActivated.get().isActive()) {
                 throw new RoleAlreadyOwnedException();
             } else {
-                role.get().setActive(true);
+                roleToBeActivated.get().setActive(true);
             }
         } else {
-            Role clientRole = new Client(account);
-            account.addRole(clientRole);
-        }
-        accountRepository.saveAndFlush(account);
-    }
-
-    @Transactional(propagation = Propagation.MANDATORY, transactionManager = "accountModuleTransactionManager")
-    private void addLandlordRole(Account account) throws RoleAlreadyOwnedException {
-        Optional<Role> role = account.getRoles().stream()
-                .filter(r -> r.getRole() == RolesEnum.LANDLORD)
-                .findFirst();
-        if (role.isPresent()) {
-            if (role.get().isActive()) {
-                throw new RoleAlreadyOwnedException();
-            } else {
-                role.get().setActive(true);
-            }
-        } else {
-            Role landlordRole = new Landlord(account);
-            account.addRole(landlordRole);
+            Role roleToBeAdded = roleConstructor.apply(account);
+            account.addRole(roleToBeAdded);
         }
         accountRepository.saveAndFlush(account);
     }

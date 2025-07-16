@@ -3,6 +3,7 @@ package com.rental_manager.roomie.entities;
 import com.rental_manager.roomie.config.database.DatabaseConstraints;
 import com.rental_manager.roomie.config.database.DatabaseStructures;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ public class ResetPasswordToken extends OneTimeUseToken {
 
     @Column(name = DatabaseStructures.TOKEN_VALUE_COLUMN, unique = true, updatable = false, nullable = false,
             length = DatabaseConstraints.RESET_PASSWORD_TOKEN_LENGTH)
+    @Getter
     private String tokenValue;
 
         public ResetPasswordToken(String tokenValue, Account account, long tokenLifeTime) {

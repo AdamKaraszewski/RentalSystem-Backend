@@ -29,12 +29,11 @@ public class AccountVerificationService implements IAccountVerificationService {
     public void verifyAccountUsingVerificationToken(String verificationTokenValue)
             throws VerificationTokenDoesNotMatchException {
         VerificationToken verificationToken = verificationTokenRepository
-                .findByTokenValueAndExpirationDateAfterAndAccount_isVerifiedFalse(verificationTokenValue, LocalDateTime.now())
+                .findByTokenValueAndExpirationDateAfter(verificationTokenValue, LocalDateTime.now())
                 .orElseThrow(VerificationTokenDoesNotMatchException::new);
         Account accountToBeVerified = verificationToken.getAccount();
         accountToBeVerified.setVerified(true);
         accountRepository.saveAndFlush(accountToBeVerified);
-        verificationToken.setWasUsed(true);
-        verificationTokenRepository.saveAndFlush(verificationToken);
+        verificationTokenRepository.delete(verificationToken);
     }
 }
