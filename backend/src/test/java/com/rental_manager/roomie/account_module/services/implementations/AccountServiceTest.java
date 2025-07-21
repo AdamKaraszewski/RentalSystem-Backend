@@ -1,5 +1,6 @@
 package com.rental_manager.roomie.account_module.services.implementations;
 
+import com.rental_manager.roomie.AccountModuleTestUtility;
 import com.rental_manager.roomie.account_module.repositories.AccountRepository;
 import com.rental_manager.roomie.account_module.repositories.VerificationTokenRepository;
 import com.rental_manager.roomie.entities.Role;
@@ -58,7 +59,7 @@ class AccountServiceTest {
 
     @Test
     void addLandlordRoleToAccountWithoutLandlordRole() {
-        var account = createNotVerifiedAccountWithClientRole();
+        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
 
         when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
         when(accountRepository.saveAndFlush(account)).thenReturn(account);
@@ -73,7 +74,7 @@ class AccountServiceTest {
 
     @Test
     void addAdminRoleToAccountWithoutAdminRole() {
-        var account = createNotVerifiedAccountWithClientRole();
+        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
 
         when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
         when(accountRepository.saveAndFlush(account)).thenReturn(account);
@@ -87,7 +88,7 @@ class AccountServiceTest {
 
     @Test
     void activeArchivedRole() {
-        var account = createNotVerifiedAccountWithClientRole();
+        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
         var adminRole = new Admin(account);
         adminRole.setActive(false);
         account.addRole(adminRole);
@@ -118,7 +119,7 @@ class AccountServiceTest {
 
     @Test
     void addRoleToAccountThrowsAccountRoleAlreadyOwnedException() {
-        var account = createNotVerifiedAccountWithClientRole();
+        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
 
         when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
 
@@ -131,7 +132,7 @@ class AccountServiceTest {
 
     @Test
     void archiveRoleTest() {
-        var account = createNotVerifiedAccountWithClientRole();
+        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
         var landlordRole = new Landlord(account);
         account.addRole(landlordRole);
 
@@ -158,7 +159,7 @@ class AccountServiceTest {
 
     @Test
     void archiveRoleThrowsRoleIsNotOwnedException() {
-        var account = createNotVerifiedAccountWithClientRole();
+        var account = AccountModuleTestUtility.createNotVerifiedAccount();
 
         when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
 
@@ -170,7 +171,7 @@ class AccountServiceTest {
 
     @Test
     void archiveRoleThrowsAccountDoesNotOweAnyRoleException() {
-        var account = createNotVerifiedAccountWithClientRole();
+        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
 
         when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
 

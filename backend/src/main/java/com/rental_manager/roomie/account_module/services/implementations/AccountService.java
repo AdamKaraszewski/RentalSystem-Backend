@@ -13,7 +13,6 @@ import com.rental_manager.roomie.entities.roles.Landlord;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleDoesNotExistException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
 import org.apache.commons.lang3.RandomStringUtils;

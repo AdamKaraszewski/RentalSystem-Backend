@@ -1,5 +1,6 @@
 package com.rental_manager.roomie.account_module.controllers.interfaces;
 
+import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.VerificationTokenDoesNotMatchException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -14,5 +15,6 @@ public interface IVerifyAccountController {
             @ApiResponse(responseCode = "200", description = "Account successfully verified."),
             @ApiResponse(responseCode = "404", description = "Token doesn't match to any account.")
     })
-    ResponseEntity<Void> verifyAccountUsingVerificationToken(@PathVariable String verificationTokenValue);
+    ResponseEntity<Void> verifyAccountUsingVerificationToken(@PathVariable String verificationTokenValue)
+            throws VerificationTokenDoesNotMatchException;
 }

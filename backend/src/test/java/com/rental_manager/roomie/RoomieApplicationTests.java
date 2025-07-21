@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 
 class RoomieApplicationTests extends IntegrationTestsBase {
 
+
 	@Test
 	void contextLoads() {
+
 	}
 
 }

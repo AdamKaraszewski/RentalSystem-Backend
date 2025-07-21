@@ -2,6 +2,8 @@ package com.rental_manager.roomie.account_module.controllers.interfaces;
 
 import com.rental_manager.roomie.account_module.dtos.GenerateResetPasswordTokenDTO;
 import com.rental_manager.roomie.account_module.dtos.ResetPasswordDTO;
+import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
+import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.ResetPasswordTokenDoesNotMatchException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,7 +20,7 @@ public interface IResetPasswordController {
             @ApiResponse(responseCode = "404", description = "Account with matching email doesn't exist.")
     })
     ResponseEntity<Void> generateResetPasswordToken(
-            @RequestBody GenerateResetPasswordTokenDTO generateResetPasswordTokenDTO);
+            @RequestBody GenerateResetPasswordTokenDTO generateResetPasswordTokenDTO) throws AccountNotFoundException;
 
     @Operation(summary = "Reset password.",
             description = "Endpoint provides resetting user password. The HTTP request must contain ResetPasswordDTO in its body.")
@@ -26,5 +28,6 @@ public interface IResetPasswordController {
             @ApiResponse(responseCode = "200", description = "Password was reset"),
             @ApiResponse(responseCode = "404", description = "Account with matching reset password token doesn't exist.")
     })
-    ResponseEntity<Void> resetPassword(@PathVariable String token, @RequestBody ResetPasswordDTO resetPasswordDTO);
+    ResponseEntity<Void> resetPassword(@PathVariable String token, @RequestBody ResetPasswordDTO resetPasswordDTO)
+            throws ResetPasswordTokenDoesNotMatchException;
 }

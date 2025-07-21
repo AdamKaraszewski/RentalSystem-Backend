@@ -1,12 +1,10 @@
 package com.rental_manager.roomie;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
@@ -16,7 +14,6 @@ public abstract class IntegrationTestsBase {
 
     private static final String initScript = "test_database_init.sql";
 
-//    @Container
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17.5")
             .withDatabaseName("test_postgres")
             .withUsername("test_postgres")
@@ -26,8 +23,6 @@ public abstract class IntegrationTestsBase {
     static {
         postgres.start();
     }
-
-
 
     @DynamicPropertySource
     public static void additionalProps(DynamicPropertyRegistry registry) {

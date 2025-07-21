@@ -20,11 +20,11 @@ public class AccountModuleTestUtility {
             "last_name_1", "username_1", "email_1", "password_1");
 
     public static final UUID ID = UUID.randomUUID();
-    private static final String FIRST_NAME = "first_name";
-    private static final String LAST_NAME = "last_name";
-    private static final String USERNAME = "username";
+    public static final String FIRST_NAME = "first_name";
+    public static final String LAST_NAME = "last_name";
+    public static final String USERNAME = "username";
     public static final String EMAIL = "email";
-    private static final String PASSWORD = "password";
+    public static final String PASSWORD = "password";
     public static final String NEW_PASSWORD = "newPassword";
     private static final Random RANDOM_GENERATOR = new SecureRandom();
     public static final String VERIFICATION_TOKEN_VALUE = RandomStringUtils.random(
@@ -37,8 +37,8 @@ public class AccountModuleTestUtility {
 
     private AccountModuleTestUtility() {}
 
-    public static Account createNotVerifiedAccountWithClientRole(String username, String email, String firstname,
-                                                                 String lastname) {
+    public static Account createNotVerifiedAccount(String username, String email, String firstname,
+                                                   String lastname) {
         return new Account(firstname, lastname, username, email, PASSWORD);
     }
 
@@ -63,10 +63,8 @@ public class AccountModuleTestUtility {
         return account;
     }
 
-    private static Account createNotVerifiedAccount() {
+    public static Account createNotVerifiedAccount() {
         return new Account(FIRST_NAME, LAST_NAME, USERNAME, EMAIL, PASSWORD);
-        //VerificationToken verificationToken = new VerificationToken(VERIFICATION_TOKEN_VALUE, account, VERIFICATION_TOKEN_LIFE_TIME);
-        //return account;
     }
 
     public static VerificationToken createVerificationTokenLinkedToNotVerifiedAccountWithClientRole() {
@@ -77,13 +75,13 @@ public class AccountModuleTestUtility {
     }
 
     public static ResetPasswordToken createResetPasswordToken() {
-        Account account = createNotVerifiedAccountWithClientRole();
+        Account account = createNotVerifiedAccount();
         return new ResetPasswordToken(RESET_PASSWORD_TOKEN_VALUE, account, REST_PASSWORD_TOKEN_LIFE_TIME);
     }
 
     public static ResetPasswordToken createResetPasswordToken(String username, String email, String firstname,
                                                               String lastname, String tokenValue) {
-        Account account = createNotVerifiedAccountWithClientRole(username, email, firstname, lastname);
+        Account account = createNotVerifiedAccount(username, email, firstname, lastname);
         return new ResetPasswordToken(tokenValue, account, REST_PASSWORD_TOKEN_LIFE_TIME);
     }
 }
