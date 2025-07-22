@@ -2,6 +2,7 @@ package com.rental_manager.roomie.account_module.controllers.implementations;
 
 import com.rental_manager.roomie.account_module.services.implementations.AccountService;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
+import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountAlreadyBlockedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
@@ -154,5 +155,39 @@ class ManageAccountControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(409))
                 .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_DOES_NOT_OWE_ANY_ROLE));
 
+    }
+
+    @Test
+    void blockAccountReturnOkStatusCodeWhenAccountIsBlockedSuccessfullyTest() throws Exception {
+        doNothing().when(accountService).blockAccount(any());
+
+        mockMvc.perform(
+                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/block")
+        )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void blockAccountReturnNotFoundStatusCodeAndResourceNotFountDtoWhenAccountDoesNotExistTest() throws Exception {
+        doThrow(new AccountNotFoundException()).when(accountService).blockAccount(any());
+
+        mockMvc.perform(
+                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/block")
+        )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode").value(404))
+                .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_NOT_FOUND));
+    }
+
+    @Test
+    void blockAccountReturnConflictStatusAndBusinessLogicExceptionDtoWhenAccountIsAlreadyBlocked() throws Exception {
+        doThrow(new AccountAlreadyBlockedException()).when(accountService).blockAccount(any());
+
+        mockMvc.perform(
+                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/block")
+        )
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errorCode").value(409))
+                .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_ALREADY_BLOCKED_EXCEPTION));
     }
 }

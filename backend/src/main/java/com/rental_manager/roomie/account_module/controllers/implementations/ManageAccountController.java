@@ -5,6 +5,7 @@ import com.rental_manager.roomie.account_module.dtos.ChangeRoleDTO;
 import com.rental_manager.roomie.account_module.services.implementations.AccountService;
 import com.rental_manager.roomie.account_module.services.interfaces.IAccountService;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
+import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountAlreadyBlockedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
@@ -41,6 +42,14 @@ public class ManageAccountController implements IManageAccountController {
             throws AccountNotFoundException, RoleIsNotOwnedException, AccountDoesNotOweAnyRoleException {
         RolesEnum roleToBeArchived = changeRoleDTO.getRole();
         accountService.archiveRole(accountId, roleToBeArchived);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    @PostMapping("/{accountId}/block")
+    @Override
+    public ResponseEntity<Void> blockAccount(@PathVariable UUID accountId) throws AccountNotFoundException,
+            AccountAlreadyBlockedException {
+        accountService.blockAccount(accountId);
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 }

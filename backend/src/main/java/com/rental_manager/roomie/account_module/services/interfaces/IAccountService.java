@@ -2,6 +2,7 @@ package com.rental_manager.roomie.account_module.services.interfaces;
 
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
+import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountAlreadyBlockedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
@@ -17,4 +18,6 @@ public interface IAccountService {
 
     void archiveRole(UUID accountId, RolesEnum roleName) throws AccountNotFoundException, RoleIsNotOwnedException,
             AccountDoesNotOweAnyRoleException;
+
+    void blockAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyBlockedException;
 }

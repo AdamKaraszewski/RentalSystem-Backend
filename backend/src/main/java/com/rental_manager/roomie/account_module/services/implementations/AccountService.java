@@ -11,6 +11,7 @@ import com.rental_manager.roomie.entities.roles.Admin;
 import com.rental_manager.roomie.entities.roles.Client;
 import com.rental_manager.roomie.entities.roles.Landlord;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
+import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountAlreadyBlockedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
@@ -103,5 +104,16 @@ public class AccountService implements IAccountService {
             account.addRole(roleToBeAdded);
         }
         accountRepository.saveAndFlush(account);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    public void blockAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyBlockedException {
+        Account accountToBeBlocked = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
+        if(!accountToBeBlocked.isActive()) {
+            throw new AccountAlreadyBlockedException();
+        }
+        accountToBeBlocked.setActive(false);
+        accountRepository.saveAndFlush(accountToBeBlocked);
     }
 }

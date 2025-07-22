@@ -23,6 +23,7 @@ import java.util.Optional;
 import static com.rental_manager.roomie.AccountModuleTestUtility.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -154,30 +155,53 @@ class AccountServiceTest {
         var thrownException = assertThrows(AccountNotFoundException.class, () -> {
             underTest.archiveRole(ID, RolesEnum.CLIENT);
         });
+
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, thrownException.getMessage());
     }
 
     @Test
     void archiveRoleThrowsRoleIsNotOwnedException() {
         var account = AccountModuleTestUtility.createNotVerifiedAccount();
-
         when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
 
         var thrownException = assertThrows(RoleIsNotOwnedException.class, () -> {
             underTest.archiveRole(ID, RolesEnum.ADMIN);
         });
+
         assertEquals(ExceptionMessages.ROlE_IS_NOT_OWNED, thrownException.getMessage());
     }
 
     @Test
     void archiveRoleThrowsAccountDoesNotOweAnyRoleException() {
         var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
-
         when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
 
         var thrownException = assertThrows(AccountDoesNotOweAnyRoleException.class, () -> {
             underTest.archiveRole(ID, RolesEnum.CLIENT);
         });
+
         assertEquals(ExceptionMessages.ACCOUNT_DOES_NOT_OWE_ANY_ROLE, thrownException.getMessage());
+    }
+
+    @Test
+    void blockAccountWorksProperlyTest() {
+        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
+        when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
+        when(accountRepository.saveAndFlush(account)).thenReturn(account);
+
+        underTest.blockAccount(ID);
+
+        assertFalse(account.isActive());
+    }
+
+    @Test
+    void blockAccountThrowsAccountNotFoundExceptionWhenAccountDoesNotExistTest() {
+        when(accountRepository.findById(ID)).thenReturn(Optional.empty());
+
+        var thrownException = assertThrows(AccountNotFoundException.class, () -> {
+            underTest.blockAccount(ID);
+        });
+
+        assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, thrownException.getMessage());
     }
 }
