@@ -8,6 +8,7 @@ import com.rental_manager.roomie.entities.roles.Admin;
 import com.rental_manager.roomie.entities.roles.Landlord;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
+import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountAlreadyActiveException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
@@ -203,5 +204,36 @@ class AccountServiceTest {
         });
 
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, thrownException.getMessage());
+    }
+
+    @Test
+    void activateAccountWorksProperlyTest() {
+        var account = createNotVerifiedAccountWithClientRole();
+        account.setActive(false);
+        when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
+        when(accountRepository.saveAndFlush(account)).thenReturn(account);
+
+        underTest.activateAccount(ID);
+
+        assertTrue(account.isActive());
+    }
+
+    @Test
+    void activateAccountThrowsAccountNotFoundExceptionWhenAccountDoesNotExistTest() {
+        when(accountRepository.findById(ID)).thenReturn(Optional.empty());
+
+        var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> underTest.activateAccount(ID));
+
+        assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, exceptionThrown.getMessage());
+    }
+
+    @Test
+    void activateAccountThrowsAccountAlreadyActiveWhenAccountIsAlreadyActive() {
+        var account = createNotVerifiedAccountWithClientRole();
+        when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
+
+        var exceptionThrown = assertThrows(AccountAlreadyActiveException.class, () -> underTest.activateAccount(ID));
+
+        assertEquals(ExceptionMessages.ACCOUNT_ALREADY_ACTIVE, exceptionThrown.getMessage());
     }
 }

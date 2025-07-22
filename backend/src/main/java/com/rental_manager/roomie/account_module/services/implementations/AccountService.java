@@ -11,10 +11,7 @@ import com.rental_manager.roomie.entities.roles.Admin;
 import com.rental_manager.roomie.entities.roles.Client;
 import com.rental_manager.roomie.entities.roles.Landlord;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountAlreadyBlockedException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
+import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -115,5 +112,16 @@ public class AccountService implements IAccountService {
         }
         accountToBeBlocked.setActive(false);
         accountRepository.saveAndFlush(accountToBeBlocked);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    public void activateAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyActiveException {
+        Account accountToBeActivated = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
+        if(accountToBeActivated.isActive()) {
+            throw new AccountAlreadyActiveException();
+        }
+        accountToBeActivated.setActive(true);
+        accountRepository.saveAndFlush(accountToBeActivated);
     }
 }

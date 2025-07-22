@@ -52,4 +52,12 @@ public class ManageAccountController implements IManageAccountController {
         accountService.blockAccount(accountId);
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
+
+    @PostMapping("/{accountId}/activate")
+    @Override
+    public ResponseEntity<Void> activateAccount(@PathVariable UUID accountId) throws AccountNotFoundException,
+            AccountAlreadyBlockedException {
+        accountService.activateAccount(accountId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
 }

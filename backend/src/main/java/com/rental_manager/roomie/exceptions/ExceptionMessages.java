@@ -17,5 +17,6 @@ public class ExceptionMessages {
     public static final String ROlE_IS_NOT_OWNED = "role.is.not.owned";
     public static final String ACCOUNT_DOES_NOT_OWE_ANY_ROLE = "account.does.not.owe.any.role";
     //BLOCK ACCOUNT
-    public static final String ACCOUNT_ALREADY_BLOCKED_EXCEPTION = "account.already.blocked.exception";
+    public static final String ACCOUNT_ALREADY_BLOCKED = "account.already.blocked";
+    public static final String ACCOUNT_ALREADY_ACTIVE = "account.already.active";
 }

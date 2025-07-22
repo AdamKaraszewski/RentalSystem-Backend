@@ -2,10 +2,7 @@ package com.rental_manager.roomie.account_module.controllers.implementations;
 
 import com.rental_manager.roomie.account_module.services.implementations.AccountService;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountAlreadyBlockedException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
+import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -188,6 +185,41 @@ class ManageAccountControllerTest {
         )
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errorCode").value(409))
-                .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_ALREADY_BLOCKED_EXCEPTION));
+                .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_ALREADY_BLOCKED));
+    }
+
+    @Test
+    void activateAccountReturnOkStatusCodeWhenAccountIsSuccessfullyActivated() throws Exception {
+        doNothing().when(accountService).activateAccount(any());
+
+        mockMvc.perform(
+                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/activate")
+        )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void activateAccountReturnNotFoundStatusCodeAndResourceNotFoundDtoWhenSpecifiedAccountDoesNotExist() throws Exception {
+        doThrow(new AccountNotFoundException()).when(accountService).activateAccount(any());
+
+        mockMvc.perform(
+                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/activate")
+        )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode").value(404))
+                .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_NOT_FOUND));
+    }
+
+    @Test
+    void activateAccountReturnConflictStatusCodeAndBusinessLogicExceptionDtoWhenSpecifiedAccountIsAlreadyActive()
+            throws Exception {
+        doThrow(new AccountAlreadyActiveException()).when(accountService).activateAccount(any());
+
+        mockMvc.perform(
+                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/activate")
+        )
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errorCode").value(409))
+                .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_ALREADY_ACTIVE));
     }
 }

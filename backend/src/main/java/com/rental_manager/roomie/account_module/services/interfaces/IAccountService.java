@@ -2,10 +2,7 @@ package com.rental_manager.roomie.account_module.services.interfaces;
 
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountAlreadyBlockedException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
+import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
 
 import java.util.UUID;
@@ -20,4 +17,6 @@ public interface IAccountService {
             AccountDoesNotOweAnyRoleException;
 
     void blockAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyBlockedException;
+
+    void activateAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyActiveException;
 }
