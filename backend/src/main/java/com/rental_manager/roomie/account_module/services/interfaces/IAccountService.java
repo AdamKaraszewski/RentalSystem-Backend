@@ -1,9 +1,11 @@
 package com.rental_manager.roomie.account_module.services.interfaces;
 
+import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
+import com.rental_manager.roomie.utils.PagingResult;
 
 import java.util.UUID;
 
@@ -19,4 +21,6 @@ public interface IAccountService {
     void blockAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyBlockedException;
 
     void activateAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyActiveException;
+
+    PagingResult<AccountOnPageDTO> getAllAccountsWithPagination(int pageNumber, int pageSize);
 }

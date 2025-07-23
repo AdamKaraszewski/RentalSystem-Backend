@@ -1,5 +1,6 @@
 package com.rental_manager.roomie.account_module.services.implementations;
 
+import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.account_module.repositories.AccountRepository;
 import com.rental_manager.roomie.account_module.repositories.VerificationTokenRepository;
 import com.rental_manager.roomie.account_module.services.interfaces.IAccountService;
@@ -13,8 +14,13 @@ import com.rental_manager.roomie.entities.roles.Landlord;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
+import com.rental_manager.roomie.utils.PagingResult;
+import com.rental_manager.roomie.utils.account_module_utils.AccountConverter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -123,5 +129,22 @@ public class AccountService implements IAccountService {
         }
         accountToBeActivated.setActive(true);
         accountRepository.saveAndFlush(accountToBeActivated);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    public PagingResult<AccountOnPageDTO> getAllAccountsWithPagination(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Account> accountsPage = accountRepository.findAllByOrderByUsernameAsc(pageable);
+        List<AccountOnPageDTO> accountOnPageDTOs = accountsPage.stream()
+                .map(AccountConverter::convertAccountToAccountOnPageDto).toList();
+        return new PagingResult<>(
+                accountOnPageDTOs,
+                accountsPage.getTotalPages(),
+                accountsPage.getTotalElements(),
+                accountsPage.getSize(),
+                accountsPage.getNumber(),
+                accountsPage.isEmpty()
+        );
     }
 }

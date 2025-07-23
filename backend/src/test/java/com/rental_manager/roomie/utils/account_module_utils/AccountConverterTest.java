@@ -1,4 +1,4 @@
-package com.rental_manager.roomie.account_module.utils;
+package com.rental_manager.roomie.utils.account_module_utils;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,5 +18,14 @@ class AccountConverterTest {
         assertTrue(actual.isActive());
         assertFalse(actual.isVerified());
         assertEquals(TEST_REGISTER_CLIENT_DTO_NO_1.getPassword(), actual.getPassword());
+    }
+
+    @Test
+    void convertAccountToAccountOnPageDTO() {
+        var actual = AccountConverter.convertAccountToAccountOnPageDto(createNotVerifiedAccount());
+        assertNotNull(actual);
+        assertEquals(USERNAME, actual.getUsername());
+        assertEquals(FIRST_NAME, actual.getFirstName());
+        assertEquals(LAST_NAME, actual.getLastName());
     }
 }

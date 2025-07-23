@@ -3,7 +3,7 @@ package com.rental_manager.roomie.account_module.repositories;
 import com.rental_manager.roomie.IntegrationTestsBase;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.ResetPasswordToken;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -22,7 +22,7 @@ class ResetPasswordTokenRepositoryIntegrationTest extends IntegrationTestsBase {
     @Autowired
     private AccountRepository accountRepository;
 
-    @AfterEach
+    @BeforeEach
     @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
     void clean() {
         underTest.deleteAll();

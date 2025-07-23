@@ -1,6 +1,7 @@
 package com.rental_manager.roomie.account_module.controllers.implementations;
 
 import com.rental_manager.roomie.account_module.controllers.interfaces.IManageAccountController;
+import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.account_module.dtos.ChangeRoleDTO;
 import com.rental_manager.roomie.account_module.services.implementations.AccountService;
 import com.rental_manager.roomie.account_module.services.interfaces.IAccountService;
@@ -11,6 +12,7 @@ import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlread
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
 import com.rental_manager.roomie.exceptions.validation_exceptions.RoleDoesNotExistException;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
+import com.rental_manager.roomie.utils.PagingResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -59,5 +61,13 @@ public class ManageAccountController implements IManageAccountController {
             AccountAlreadyBlockedException {
         accountService.activateAccount(accountId);
         return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity<PagingResult<AccountOnPageDTO>> getAllAccountsWithPagination(
+            @RequestParam int pageNumber, @RequestParam int pageSize) {
+        PagingResult<AccountOnPageDTO> responseBody = accountService.getAllAccountsWithPagination(pageNumber, pageSize);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 }

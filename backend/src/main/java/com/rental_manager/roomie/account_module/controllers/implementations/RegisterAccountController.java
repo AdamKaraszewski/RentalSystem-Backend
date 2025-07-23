@@ -4,7 +4,7 @@ import com.rental_manager.roomie.account_module.controllers.interfaces.IRegister
 import com.rental_manager.roomie.account_module.dtos.RegisterClientDTO;
 import com.rental_manager.roomie.account_module.services.implementations.AccountService;
 import com.rental_manager.roomie.account_module.services.interfaces.IAccountService;
-import com.rental_manager.roomie.account_module.utils.AccountConverter;
+import com.rental_manager.roomie.utils.account_module_utils.AccountConverter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
