@@ -1,5 +1,6 @@
 package com.rental_manager.roomie.account_module.controllers.implementations;
 
+import com.rental_manager.roomie.account_module.dtos.AccountDTO;
 import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.account_module.services.implementations.AccountService;
 import com.rental_manager.roomie.entities.Account;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.rental_manager.roomie.AccountModuleTestUtility.createNotVerifiedAccount;
+import static com.rental_manager.roomie.AccountModuleTestUtility.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -329,5 +330,38 @@ class ManageAccountControllerTest {
                 .andExpect(jsonPath("$.size").value(2))
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.empty").value(true));
+    }
+
+    @Test
+    void getAccountByIdReturnsAccountDtoAndStatusCodeOk() throws Exception {
+        List<String> roles = new ArrayList<>();
+        roles.add("LANDLORD");
+        roles.add("CLIENT");
+        AccountDTO accountDTO = new AccountDTO(FIRST_NAME, LAST_NAME, USERNAME, EMAIL, true, true, roles);
+        when(accountService.getAccountById(eq(ID))).thenReturn(accountDTO);
+
+        mockMvc.perform(
+                get(BASE_ENDPOINT + "/" + ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value(FIRST_NAME))
+                .andExpect(jsonPath("$.lastName").value(LAST_NAME))
+                .andExpect(jsonPath("$.username").value(USERNAME))
+                .andExpect(jsonPath("$.email").value(EMAIL))
+                .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.verified").value(true))
+                .andExpect(jsonPath("$.roles").isArray())
+                .andExpect(jsonPath("$.roles[0]").value("LANDLORD"))
+                .andExpect(jsonPath("$.roles[1]").value("CLIENT"));
+    }
+
+    @Test
+    void getAccountByIdReturnResourceNotFoundDTOAndNotFoundStatusCode() throws Exception {
+        when(accountService.getAccountById(eq(ID))).thenThrow(new AccountNotFoundException());
+
+        mockMvc.perform(
+                get(BASE_ENDPOINT + "/" + ID))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode").value(404))
+                .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_NOT_FOUND));
     }
 }

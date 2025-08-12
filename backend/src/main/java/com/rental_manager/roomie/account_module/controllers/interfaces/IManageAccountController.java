@@ -1,5 +1,6 @@
 package com.rental_manager.roomie.account_module.controllers.interfaces;
 
+import com.rental_manager.roomie.account_module.dtos.AccountDTO;
 import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.account_module.dtos.AccountsPageRequest;
 import com.rental_manager.roomie.account_module.dtos.ChangeRoleDTO;
@@ -56,4 +57,11 @@ public interface IManageAccountController {
             @ApiResponse(responseCode = "200", description = "Page successfully generated")
     })
     ResponseEntity<PagingResult<AccountOnPageDTO>> getAllAccountsMatchingPhrasesWithPagination(AccountsPageRequest accountsPageRequest);
+
+    @Operation(summary = "Get accounts by Id", description = "Get accounts with specified UUID value")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Account was found"),
+            @ApiResponse(responseCode = "404", description = "Account with specified Id does not exist")
+    })
+    ResponseEntity<AccountDTO> getAccountById(UUID id) throws AccountNotFoundException;
 }

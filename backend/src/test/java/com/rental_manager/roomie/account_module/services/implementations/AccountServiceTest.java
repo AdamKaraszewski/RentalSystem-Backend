@@ -1,12 +1,14 @@
 package com.rental_manager.roomie.account_module.services.implementations;
 
 import com.rental_manager.roomie.AccountModuleTestUtility;
+import com.rental_manager.roomie.account_module.dtos.AccountDTO;
 import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.account_module.repositories.AccountRepository;
 import com.rental_manager.roomie.account_module.repositories.VerificationTokenRepository;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.Role;
 import com.rental_manager.roomie.entities.roles.Admin;
+import com.rental_manager.roomie.entities.roles.Client;
 import com.rental_manager.roomie.entities.roles.Landlord;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
@@ -290,5 +292,26 @@ class AccountServiceTest {
         assertNotNull(result);
         assertNotNull(result.getContent());
         assertEquals(0, result.getContent().size());
+    }
+
+    @Test
+    void getAccountByIdReturnAccountDTO() {
+        Account account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
+        Landlord landlordRole = new Landlord(account);
+        account.addRole(landlordRole);
+        when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
+
+        AccountDTO accountDTO = underTest.getAccountById(ID);
+
+        assertNotNull(accountDTO);
+    }
+
+    @Test
+    void getAccountByIdThrowsAccountNotFoundException() {
+        when(accountRepository.findById(ID)).thenReturn(Optional.empty());
+
+        var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> underTest.getAccountById(ID));
+
+        assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, exceptionThrown.getMessage());
     }
 }

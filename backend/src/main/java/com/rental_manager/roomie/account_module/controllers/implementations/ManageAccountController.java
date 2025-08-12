@@ -1,6 +1,7 @@
 package com.rental_manager.roomie.account_module.controllers.implementations;
 
 import com.rental_manager.roomie.account_module.controllers.interfaces.IManageAccountController;
+import com.rental_manager.roomie.account_module.dtos.AccountDTO;
 import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.account_module.dtos.AccountsPageRequest;
 import com.rental_manager.roomie.account_module.dtos.ChangeRoleDTO;
@@ -77,13 +78,11 @@ public class ManageAccountController implements IManageAccountController {
         );
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
-//    @GetMapping("/test")
-//    public ResponseEntity<Void> getAllTest(@RequestBody PagingRequest pagingRequest) {
-//        System.out.println(pagingRequest.getPageNumber());
-//        System.out.println(pagingRequest.getDirection());
-//        System.out.println(pagingRequest.getPageSize());
-//
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
 
+    @Override
+    @GetMapping("/{id}")
+    public ResponseEntity<AccountDTO> getAccountById(@PathVariable UUID id) throws AccountNotFoundException {
+        AccountDTO responseBody = accountService.getAccountById(id);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
 }

@@ -1,5 +1,6 @@
 package com.rental_manager.roomie.account_module.services.interfaces;
 
+import com.rental_manager.roomie.account_module.dtos.AccountDTO;
 import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
@@ -25,4 +26,6 @@ public interface IAccountService {
     void activateAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyActiveException;
 
     PagingResult<AccountOnPageDTO> getAllAccountsMatchingPhrasesWithPagination(int pageNumber, int pageSize, Sort.Direction direction, String sortField, List<String> phrases);
+
+    AccountDTO getAccountById(UUID id) throws AccountNotFoundException;
 }

@@ -1,5 +1,6 @@
 package com.rental_manager.roomie.account_module.services.implementations;
 
+import com.rental_manager.roomie.account_module.dtos.AccountDTO;
 import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.account_module.repositories.AccountRepository;
 import com.rental_manager.roomie.account_module.repositories.VerificationTokenRepository;
@@ -150,5 +151,12 @@ public class AccountService implements IAccountService {
                 accountsPage.getNumber(),
                 accountsPage.isEmpty()
         );
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    public AccountDTO getAccountById(UUID id) throws AccountNotFoundException {
+        Account account = accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
+        return AccountConverter.convertAccountToAccountDto(account);
     }
 }

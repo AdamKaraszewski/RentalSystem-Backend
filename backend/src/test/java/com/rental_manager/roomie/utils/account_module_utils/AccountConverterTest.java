@@ -1,5 +1,7 @@
 package com.rental_manager.roomie.utils.account_module_utils;
 
+import com.rental_manager.roomie.AccountModuleTestUtility;
+import com.rental_manager.roomie.entities.roles.Landlord;
 import org.junit.jupiter.api.Test;
 
 import static com.rental_manager.roomie.AccountModuleTestUtility.*;
@@ -27,5 +29,23 @@ class AccountConverterTest {
         assertEquals(USERNAME, actual.getUsername());
         assertEquals(FIRST_NAME, actual.getFirstName());
         assertEquals(LAST_NAME, actual.getLastName());
+    }
+
+    @Test
+    void convertAccountToAccountDTO() {
+        var accountToBeConverted = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
+        var landlordRole = new Landlord(accountToBeConverted);
+
+        var actual = AccountConverter.convertAccountToAccountDto(accountToBeConverted);
+
+        assertNotNull(actual);
+        assertEquals(FIRST_NAME, actual.getFirstName());
+        assertEquals(LAST_NAME, actual.getLastName());
+        assertEquals(USERNAME, actual.getUsername());
+        assertFalse(actual.isVerified());
+        assertTrue(actual.isActive());
+        assertEquals(2, actual.getRoles().size());
+        assertTrue(actual.getRoles().contains("LANDLORD"));
+        assertTrue(actual.getRoles().contains("CLIENT"));
     }
 }
