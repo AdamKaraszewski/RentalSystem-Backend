@@ -9,11 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static com.rental_manager.roomie.account_module.repositories.specifications.AccountSpecification.usernameOrFirstNameOrLastNameMatches;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AccountRepositoryIntegrationTest extends IntegrationTestsBase {
@@ -70,36 +73,222 @@ class AccountRepositoryIntegrationTest extends IntegrationTestsBase {
 
     @Test
     @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
-    void nativeQueryFindAllByOrderByUsernameAscTest() {
-        Pageable pageable1 = PageRequest.of(0, 4);
-        Pageable pageable2 = PageRequest.of(5, 1);
-        Pageable pageable3 = PageRequest.of(2, 2);
-        Pageable pageable4 = PageRequest.of(10, 1);
+    void specificationQueryFindAllMatchingUsernameOrFirstNameOrLastNameReturnAllSortByUsernameAsc() {
+        List<String> phrases = new ArrayList<>();
+        phrases.add("");
 
-        Page<Account> resultPage1 = underTest.findAllByOrderByUsernameAsc(pageable1);
-        Page<Account> resultPage2 = underTest.findAllByOrderByUsernameAsc(pageable2);
-        Page<Account> resultPage3 = underTest.findAllByOrderByUsernameAsc(pageable3);
-        Page<Account> resultPage4 = underTest.findAllByOrderByUsernameAsc(pageable4);
+        Pageable pageable = PageRequest.of(0, 4, Sort.Direction.ASC, "username");
+        Page<Account> resultPage = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases), pageable);
+        List<Account> accountsOnPage = resultPage.getContent();
 
-        List<Account> accounts1 = resultPage1.getContent();
-        List<Account> accounts2 = resultPage2.getContent();
-        List<Account> accounts3 = resultPage3.getContent();
-        List<Account> accounts4 = resultPage4.getContent();
+        assertEquals(4, accountsOnPage.size());
+        assertEquals(6, resultPage.getTotalElements());
+        assertEquals(2, resultPage.getTotalPages());
 
-        assertEquals(4, accounts1.size());
-        assertEquals("a_username_no_5", accounts1.getFirst().getUsername());
-        assertEquals("username_no_1", accounts1.get(1).getUsername());
-        assertEquals("username_no_2", accounts1.get(2).getUsername());
-        assertEquals("username_no_3", accounts1.get(3).getUsername());
+        assertEquals("a_username_no_5", accountsOnPage.getFirst().getUsername());
+        assertEquals("username_no_1", accountsOnPage.get(1).getUsername());
+        assertEquals("username_no_2", accountsOnPage.get(2).getUsername());
+        assertEquals("username_no_3", accountsOnPage.get(3).getUsername());
+    }
 
-        assertEquals(1, accounts2.size());
-        assertEquals("x_username_no_6", accounts2.getFirst().getUsername());
+    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    void specificationQueryFindAllMatchingUsernameOrFirstNameOrLastNameReturnAllSortByUsernameDesc() {
+        List<String> phrases = new ArrayList<>();
+        phrases.add("");
 
-        assertEquals(2, accounts3.size());
-        assertEquals("username_no_4", accounts3.getFirst().getUsername());
-        assertEquals("x_username_no_6", accounts3.get(1).getUsername());
+        Pageable pageable = PageRequest.of(0, 4, Sort.Direction.DESC, "username");
+        Page<Account> resultPage = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases), pageable);
+        List<Account> accountsOnPage = resultPage.getContent();
 
-        assertEquals(0, accounts4.size());
-        assertTrue(resultPage4.isEmpty());
+        assertEquals(4, accountsOnPage.size());
+        assertEquals(6, resultPage.getTotalElements());
+        assertEquals(2, resultPage.getTotalPages());
+
+        assertEquals("x_username_no_6", accountsOnPage.getFirst().getUsername());
+        assertEquals("username_no_4", accountsOnPage.get(1).getUsername());
+        assertEquals("username_no_3", accountsOnPage.get(2).getUsername());
+        assertEquals("username_no_2", accountsOnPage.get(3).getUsername());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    void specificationQueryFindAllMatchingUsernameOrFirstNameOrLastNameReturnAllSortByFirstNameAsc() {
+        List<String> phrases = new ArrayList<>();
+        phrases.add("");
+
+        Pageable pageable = PageRequest.of(0, 4, Sort.Direction.ASC, "firstName");
+        Page<Account> resultPage = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases), pageable);
+        List<Account> accountsOnPage = resultPage.getContent();
+
+        assertEquals(4, accountsOnPage.size());
+        assertEquals(6, resultPage.getTotalElements());
+        assertEquals(2, resultPage.getTotalPages());
+
+        assertEquals("first_name_no_1", accountsOnPage.getFirst().getFirstName());
+        assertEquals("first_name_no_2", accountsOnPage.get(1).getFirstName());
+        assertEquals("first_name_no_3", accountsOnPage.get(2).getFirstName());
+        assertEquals("first_name_no_4", accountsOnPage.get(3).getFirstName());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    void specificationQueryFindAllMatchingUsernameOrFirstNameOrLastNameReturnAllSortByFirstNameDesc() {
+        List<String> phrases = new ArrayList<>();
+        phrases.add("");
+
+        Pageable pageable = PageRequest.of(0, 4, Sort.Direction.DESC, "lastName");
+        Page<Account> resultPage = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases), pageable);
+        List<Account> accountsOnPage = resultPage.getContent();
+
+        assertEquals(4, accountsOnPage.size());
+        assertEquals(6, resultPage.getTotalElements());
+        assertEquals(2, resultPage.getTotalPages());
+
+        assertEquals("first_name_no_6", accountsOnPage.getFirst().getFirstName());
+        assertEquals("first_name_no_5", accountsOnPage.get(1).getFirstName());
+        assertEquals("first_name_no_4", accountsOnPage.get(2).getFirstName());
+        assertEquals("first_name_no_3", accountsOnPage.get(3).getFirstName());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    void specificationQueryFindAllMatchingUsernameOrFirstNameOrLastNameReturnAllSortByLastNameAsc() {
+        List<String> phrases = new ArrayList<>();
+        phrases.add("");
+
+        Pageable pageable = PageRequest.of(0, 4, Sort.Direction.ASC, "lastName");
+        Page<Account> resultPage = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases), pageable);
+        List<Account> accountsOnPage = resultPage.getContent();
+
+        assertEquals(4, accountsOnPage.size());
+        assertEquals(6, resultPage.getTotalElements());
+        assertEquals(2, resultPage.getTotalPages());
+
+        assertEquals("last_name_no_1", accountsOnPage.getFirst().getLastName());
+        assertEquals("last_name_no_2", accountsOnPage.get(1).getLastName());
+        assertEquals("last_name_no_3", accountsOnPage.get(2).getLastName());
+        assertEquals("last_name_no_4", accountsOnPage.get(3).getLastName());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    void specificationQueryFindAllMatchingUsernameOrFirstNameOrLastNameReturnAllSortByLastNameDesc() {
+        List<String> phrases = new ArrayList<>();
+        phrases.add("");
+
+        Pageable pageable = PageRequest.of(0, 4, Sort.Direction.DESC, "lastName");
+        Page<Account> resultPage = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases), pageable);
+        List<Account> accountsOnPage = resultPage.getContent();
+
+        assertEquals(4, accountsOnPage.size());
+        assertEquals(6, resultPage.getTotalElements());
+        assertEquals(2, resultPage.getTotalPages());
+
+        assertEquals("last_name_no_6", accountsOnPage.getFirst().getLastName());
+        assertEquals("last_name_no_5", accountsOnPage.get(1).getLastName());
+        assertEquals("last_name_no_4", accountsOnPage.get(2).getLastName());
+        assertEquals("last_name_no_3", accountsOnPage.get(3).getLastName());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    void specificationQueryFindAllMatchingUsernameOrFirstNameOrLastNameReturnAllMatchingFirstname() {
+        List<String> phrases1 = new ArrayList<>();
+        List<String> phrases2 = new ArrayList<>();
+        phrases1.add("first_name_no_3");
+        phrases2.add("first_name_no_3");
+        phrases2.add("first_name_no_4");
+
+        Pageable pageable = PageRequest.of(0, 3, Sort.Direction.ASC, "username");
+        Page<Account> resultPage1 = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases1), pageable);
+        Page<Account> resultPage2 = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases2), pageable);
+
+        List<Account> accountsOnPage1 = resultPage1.getContent();
+        List<Account> accountsOnPage2 = resultPage2.getContent();
+
+        assertEquals(1, accountsOnPage1.size());
+        assertEquals(1, resultPage1.getTotalElements());
+        assertEquals(1, resultPage1.getTotalPages());
+        assertEquals("first_name_no_3", accountsOnPage1.getFirst().getFirstName());
+
+        assertEquals(2, accountsOnPage2.size());
+        assertEquals(2, resultPage2.getTotalElements());
+        assertEquals(1, resultPage2.getTotalPages());
+        assertEquals("first_name_no_3", accountsOnPage2.getFirst().getFirstName());
+        assertEquals("first_name_no_4", accountsOnPage2.getLast().getFirstName());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    void specificationQueryFindAllMatchingUsernameOrFirstNameOrLastNameReturnAllMatchingLastname() {
+        List<String> phrases1 = new ArrayList<>();
+        List<String> phrases2 = new ArrayList<>();
+        phrases1.add("last_name_no_5");
+        phrases2.add("last_name_no_5");
+        phrases2.add("last_name_no_6");
+
+        Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "username");
+        Page<Account> resultPage1 = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases1), pageable);
+        Page<Account> resultPage2 = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases2), pageable);
+
+        List<Account> accountsOnPage1 = resultPage1.getContent();
+        List<Account> accountsOnPage2 = resultPage2.getContent();
+
+        assertEquals(1, accountsOnPage1.size());
+        assertEquals(1, resultPage1.getTotalElements());
+        assertEquals(1, resultPage1.getTotalPages());
+        assertEquals("a_username_no_5", accountsOnPage1.getFirst().getUsername());
+
+        assertEquals(2, accountsOnPage2.size());
+        assertEquals(2, resultPage2.getTotalElements());
+        assertEquals(1, resultPage2.getTotalPages());
+        assertEquals("a_username_no_5", accountsOnPage2.getFirst().getUsername());
+        assertEquals("x_username_no_6", accountsOnPage2.getLast().getUsername());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    void specificationQueryFindAllMatchingUsernameOrFirstNameOrLastNameReturnAllMatchingUsername() {
+        List<String> phrases1 = new ArrayList<>();
+        List<String> phrases2 = new ArrayList<>();
+        phrases1.add("a_us");
+        phrases2.add("a_us");
+        phrases2.add("x_us");
+
+        Pageable pageable = PageRequest.of(0, 3, Sort.Direction.ASC, "username");
+        Page<Account> resultPage1 = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases1), pageable);
+        Page<Account> resultPage2 = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases2), pageable);
+
+        List<Account> accountsOnPage1 = resultPage1.getContent();
+        List<Account> accountsOnPage2 = resultPage2.getContent();
+
+        assertEquals(1, accountsOnPage1.size());
+        assertEquals(1, resultPage1.getTotalElements());
+        assertEquals(1, resultPage1.getTotalPages());
+        assertEquals("a_username_no_5", accountsOnPage1.getFirst().getUsername());
+
+        assertEquals(2, accountsOnPage2.size());
+        assertEquals(2, resultPage2.getTotalElements());
+        assertEquals(1, resultPage2.getTotalPages());
+        assertEquals("a_username_no_5", accountsOnPage2.getFirst().getUsername());
+        assertEquals("x_username_no_6", accountsOnPage2.getLast().getUsername());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    void specificationQueryFindAllMatchingUsernameOrFirstNameOrLastnameReturnEmptyList() {
+        List<String> phrases = new ArrayList<>();
+        phrases.add("username_which_does_not_exist");
+
+        Pageable pageable = PageRequest.of(0, 3, Sort.Direction.ASC, "username");
+        Page<Account> resultPage = underTest.findAll(usernameOrFirstNameOrLastNameMatches(phrases), pageable);
+
+        List<Account> accountsOnPage = resultPage.getContent();
+
+        assertEquals(0, accountsOnPage.size());
+        assertEquals(0, resultPage.getTotalElements());
+        assertEquals(0, resultPage.getTotalPages());
+        assertTrue(resultPage.isEmpty());
     }
 }

@@ -1,10 +1,11 @@
 package com.rental_manager.roomie.account_module.controllers.interfaces;
 
 import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
+import com.rental_manager.roomie.account_module.dtos.AccountsPageRequest;
 import com.rental_manager.roomie.account_module.dtos.ChangeRoleDTO;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
-import com.rental_manager.roomie.utils.PagingResult;
+import com.rental_manager.roomie.utils.searching_with_pagination.PagingResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -54,6 +55,5 @@ public interface IManageAccountController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Page successfully generated")
     })
-    ResponseEntity<PagingResult<AccountOnPageDTO>> getAllAccountsWithPagination(int pageNumber, int pageSize);
-
+    ResponseEntity<PagingResult<AccountOnPageDTO>> getAllAccountsMatchingPhrasesWithPagination(AccountsPageRequest accountsPageRequest);
 }

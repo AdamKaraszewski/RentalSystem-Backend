@@ -2,6 +2,7 @@ package com.rental_manager.roomie.account_module.controllers.implementations;
 
 import com.rental_manager.roomie.account_module.controllers.interfaces.IManageAccountController;
 import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
+import com.rental_manager.roomie.account_module.dtos.AccountsPageRequest;
 import com.rental_manager.roomie.account_module.dtos.ChangeRoleDTO;
 import com.rental_manager.roomie.account_module.services.implementations.AccountService;
 import com.rental_manager.roomie.account_module.services.interfaces.IAccountService;
@@ -10,9 +11,9 @@ import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountAlr
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
-import com.rental_manager.roomie.exceptions.validation_exceptions.RoleDoesNotExistException;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
-import com.rental_manager.roomie.utils.PagingResult;
+import com.rental_manager.roomie.utils.searching_with_pagination.PagingRequest;
+import com.rental_manager.roomie.utils.searching_with_pagination.PagingResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,9 +66,24 @@ public class ManageAccountController implements IManageAccountController {
 
     @Override
     @GetMapping
-    public ResponseEntity<PagingResult<AccountOnPageDTO>> getAllAccountsWithPagination(
-            @RequestParam int pageNumber, @RequestParam int pageSize) {
-        PagingResult<AccountOnPageDTO> responseBody = accountService.getAllAccountsWithPagination(pageNumber, pageSize);
+    public ResponseEntity<PagingResult<AccountOnPageDTO>> getAllAccountsMatchingPhrasesWithPagination(
+            @RequestBody AccountsPageRequest accountsPageRequest) {
+        PagingResult<AccountOnPageDTO> responseBody = accountService.getAllAccountsMatchingPhrasesWithPagination(
+                accountsPageRequest.getPageNumber(),
+                accountsPageRequest.getPageSize(),
+                accountsPageRequest.getDirection(),
+                accountsPageRequest.getSortField(),
+                accountsPageRequest.getPhrases()
+        );
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
+//    @GetMapping("/test")
+//    public ResponseEntity<Void> getAllTest(@RequestBody PagingRequest pagingRequest) {
+//        System.out.println(pagingRequest.getPageNumber());
+//        System.out.println(pagingRequest.getDirection());
+//        System.out.println(pagingRequest.getPageSize());
+//
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
+
 }

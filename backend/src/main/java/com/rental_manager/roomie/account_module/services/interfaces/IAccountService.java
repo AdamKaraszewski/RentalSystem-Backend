@@ -5,8 +5,10 @@ import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
-import com.rental_manager.roomie.utils.PagingResult;
+import com.rental_manager.roomie.utils.searching_with_pagination.PagingResult;
+import org.springframework.data.domain.Sort;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface IAccountService {
@@ -22,5 +24,5 @@ public interface IAccountService {
 
     void activateAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyActiveException;
 
-    PagingResult<AccountOnPageDTO> getAllAccountsWithPagination(int pageNumber, int pageSize);
+    PagingResult<AccountOnPageDTO> getAllAccountsMatchingPhrasesWithPagination(int pageNumber, int pageSize, Sort.Direction direction, String sortField, List<String> phrases);
 }

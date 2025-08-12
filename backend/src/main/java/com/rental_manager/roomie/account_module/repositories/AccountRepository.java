@@ -3,17 +3,18 @@ package com.rental_manager.roomie.account_module.repositories;
 import com.rental_manager.roomie.entities.Account;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, UUID> {
+public interface AccountRepository extends JpaRepository<Account, UUID>, JpaSpecificationExecutor<Account> {
 
     @Transactional(propagation = Propagation.MANDATORY)
     Optional<Account> findByEmail(String email);
@@ -23,11 +24,8 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     Optional<Account> findById(UUID id);
 
     @Transactional(propagation = Propagation.MANDATORY)
-    List<Account> findAll();
-
-    @Transactional(propagation = Propagation.MANDATORY)
     Account saveAndFlush(Account account);
 
-    @Transactional(propagation = Propagation.MANDATORY)
-    Page<Account> findAllByOrderByUsernameAsc(Pageable pageable);
+   @Transactional(propagation = Propagation.MANDATORY)
+   Page<Account> findAll(Specification<Account> spec, Pageable pageable);
 }

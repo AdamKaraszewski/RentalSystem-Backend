@@ -6,16 +6,14 @@ import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
-import com.rental_manager.roomie.utils.PagingResult;
+import com.rental_manager.roomie.utils.searching_with_pagination.PagingResult;
 import com.rental_manager.roomie.utils.account_module_utils.AccountConverter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ManageAccountController.class)
+@ActiveProfiles("test")
 class ManageAccountControllerTest {
 
     private static final String BASE_ENDPOINT = "/accounts";
@@ -236,92 +235,99 @@ class ManageAccountControllerTest {
     }
 
     @Test
-    void getAllAccountsWithPaginationReturnOkStatusCodeAndPageWithContentSize3WhenAccountsAreSuccessfullyLoaded()
-            throws Exception {
-        var account1 = createNotVerifiedAccount("b_username_no_1", "email.no1@example.com",
-                "first_name_no_1","last_name_no_1");
-        var account2 = createNotVerifiedAccount("a_username_no_2", "email.no2@example.com",
+    void getAllAccountsMatchingPhraseWithPaginationReturnsNotEmptyPage() throws Exception {
+        List<Account> accounts = new ArrayList<>();
+        var account1 = createNotVerifiedAccount("a_username_no_1", "email.no1@example.com",
+                "first_name_no_1", "last_name_no_1");
+        var account2 = createNotVerifiedAccount("b_username_no_2", "email.no2@example.com",
                 "first_name_no_2", "last_name_no_2");
-        var account3 = createNotVerifiedAccount("x_username_no_3", "email.np3@example.com",
-                "first_name_no_3", "last_name_no_3");
+        accounts.add(account1);
+        accounts.add(account2);
 
-        List<Account> pageContent1 = new ArrayList<>();
-        pageContent1.add(account2);
-        pageContent1.add(account1);
-        pageContent1.add(account3);
-
-        Pageable pageable = PageRequest.of(0, 3);
-
-        Page<Account> page1 = new PageImpl<>(pageContent1, pageable, 3);
-
-        List<AccountOnPageDTO> accountOnPageDTOs1 = page1.stream()
+        Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "username");
+        Page<Account> accountsPage = new PageImpl<>(accounts, pageable, 2);
+        List<AccountOnPageDTO> pageDTOContent = accounts.stream()
                 .map(AccountConverter::convertAccountToAccountOnPageDto).toList();
-
-        PagingResult<AccountOnPageDTO> resultPage1 = new PagingResult<>(
-                accountOnPageDTOs1,
-                page1.getTotalPages(),
-                page1.getTotalElements(),
-                page1.getSize(),
-                page1.getNumber(),
-                page1.isEmpty()
+        PagingResult<AccountOnPageDTO> accountPageDTO = new PagingResult<>(
+                pageDTOContent,
+                accountsPage.getTotalPages(),
+                accountsPage.getTotalElements(),
+                accountsPage.getSize(),
+                accountsPage.getNumber(),
+                accountsPage.isEmpty()
         );
 
-        when(accountService.getAllAccountsWithPagination(0, 3)).thenReturn(resultPage1);
+        when(accountService.getAllAccountsMatchingPhrasesWithPagination(eq(0), eq(2), eq(Sort.Direction.ASC),
+                eq("username"), anyList())).thenReturn(accountPageDTO);
 
         mockMvc.perform(
                 get(BASE_ENDPOINT)
-                        .param("pageNumber", "0")
-                        .param("pageSize", "3")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                "pageNumber": 0,
+                                "pageSize": 2,
+                                "direction": "ASC",
+                                "sortField": "username",
+                                "phrases": [
+                                "user"
+                                ]
+                                }
+                                """)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].username").value("a_username_no_2"))
-                .andExpect(jsonPath("$.content[0].firstName").value("first_name_no_2"))
-                .andExpect(jsonPath("$.content[0].lastName").value("last_name_no_2"))
-                .andExpect(jsonPath("$.content[2].username").value("x_username_no_3"))
-                .andExpect(jsonPath("$.content[2].firstName").value("first_name_no_3"))
-                .andExpect(jsonPath("$.content[2].lastName").value("last_name_no_3"))
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].username").value("a_username_no_1"))
+                .andExpect(jsonPath("$.content[0].firstName").value("first_name_no_1"))
+                .andExpect(jsonPath("$.content[0].lastName").value("last_name_no_1"))
                 .andExpect(jsonPath("$.totalPages").value(1))
-                .andExpect(jsonPath("$.totalElements").value(3))
-                .andExpect(jsonPath("$.size").value(3))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.size").value(2))
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.empty").value(false));
     }
 
     @Test
-    void getAllAccountsWithPaginationReturnOkStatusAndPageWithEmptyContentPageSizeIsGraterAllAccountsNumberAndPageNumberIsGraterThan0()
-        throws Exception {
-        List<Account> pageContent1 = new ArrayList<>();
+    void getAllAccountsMatchingPhraseWithPaginationReturnsEmptyPage() throws Exception {
+        List<Account> accounts = new ArrayList<>();
 
-        Pageable pageable = PageRequest.of(10, 10);
-
-        Page<Account> page1 = new PageImpl<>(pageContent1, pageable, 3);
-
-        List<AccountOnPageDTO> accountOnPageDTOs1 = page1.stream()
+        Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "username");
+        Page<Account> accountsPage = new PageImpl<>(accounts, pageable, 0);
+        List<AccountOnPageDTO> pageDTOContent = accounts.stream()
                 .map(AccountConverter::convertAccountToAccountOnPageDto).toList();
-
-        PagingResult<AccountOnPageDTO> resultPage1 = new PagingResult<>(
-                accountOnPageDTOs1,
-                page1.getTotalPages(),
-                page1.getTotalElements(),
-                page1.getSize(),
-                page1.getNumber(),
-                page1.isEmpty()
+        PagingResult<AccountOnPageDTO> accountPageDTO = new PagingResult<>(
+                pageDTOContent,
+                accountsPage.getTotalPages(),
+                accountsPage.getTotalElements(),
+                accountsPage.getSize(),
+                accountsPage.getNumber(),
+                accountsPage.isEmpty()
         );
 
-        when(accountService.getAllAccountsWithPagination(10, 10)).thenReturn(resultPage1);
+        when(accountService.getAllAccountsMatchingPhrasesWithPagination(eq(0), eq(2), eq(Sort.Direction.ASC),
+                eq("username"), anyList())).thenReturn(accountPageDTO);
 
         mockMvc.perform(
-                get(BASE_ENDPOINT)
-                        .param("pageNumber", "10")
-                        .param("pageSize", "10")
-        )
+                        get(BASE_ENDPOINT)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                {
+                                "pageNumber": 0,
+                                "pageSize": 2,
+                                "direction": "ASC",
+                                "sortField": "username",
+                                "phrases": [
+                                "not_existing_username"
+                                ]
+                                }
+                                """)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content").isEmpty())
-                .andExpect(jsonPath("$.totalPages").value(1))
-                .andExpect(jsonPath("$.totalElements").value(3))
-                .andExpect(jsonPath("$.size").value(10))
-                .andExpect(jsonPath("$.page").value(10))
+                .andExpect(jsonPath("$.totalPages").value(0))
+                .andExpect(jsonPath("$.totalElements").value(0))
+                .andExpect(jsonPath("$.size").value(2))
+                .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.empty").value(true));
     }
 }

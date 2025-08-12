@@ -15,16 +15,14 @@ import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoe
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
-import com.rental_manager.roomie.utils.PagingResult;
+import com.rental_manager.roomie.utils.searching_with_pagination.PagingResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -247,32 +245,50 @@ class AccountServiceTest {
     }
 
     @Test
-    void getAllAccountsWithPaginationWorksProperlyTest() {
-        var account1 = createNotVerifiedAccount("b_username_no_1", "email.no1@example.com",
-                "first_name_no_1","last_name_no_1");
-        var account2 = createNotVerifiedAccount("a_username_no_2", "email.no2@example.com",
-                "first_name_no_2", "last_name_no_2");
-
+    void getAllAccountsMatchingPhrasesWithPaginationReturnNotEmptyPage() {
         List<Account> accountsOnPage = new ArrayList<>();
-        accountsOnPage.add(account2);
+        var account1 = createNotVerifiedAccount("a_username_no_1", "email.no1@example.com",
+                "first_name_no_1", "last_name_no_1");
+        var account2 = createNotVerifiedAccount("b_username_no_2", "email.no2@example.com",
+                "first_name_no_2", "last_name_no_2");
         accountsOnPage.add(account1);
+        accountsOnPage.add(account2);
 
+        Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "username");
+        Page<Account> accounts = new PageImpl<>(accountsOnPage, pageable, 2);
+        when(accountRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(accounts);
+        List<String> phrases = new ArrayList<>();
+        phrases.add("a_username_no_1");
+        phrases.add("b_username_no_2");
 
-        Pageable pageable = PageRequest.of(0, 2);
-        Page<Account> page = new PageImpl<>(accountsOnPage, pageable, 2);
-        when(accountRepository.findAllByOrderByUsernameAsc(any())).thenReturn(page);
-
-        PagingResult<AccountOnPageDTO> result = underTest.getAllAccountsWithPagination(0, 2);
+        PagingResult<AccountOnPageDTO> result = underTest.getAllAccountsMatchingPhrasesWithPagination(0,
+                2, Sort.Direction.ASC, "username", phrases);
 
         assertNotNull(result);
         assertNotNull(result.getContent());
         assertEquals(2, result.getContent().size());
-        assertEquals("a_username_no_2", result.getContent().getFirst().getUsername());
-        assertEquals("first_name_no_2", result.getContent().getFirst().getFirstName());
-        assertEquals("last_name_no_2", result.getContent().getFirst().getLastName());
+        assertEquals("a_username_no_1", result.getContent().getFirst().getUsername());
+        assertEquals("first_name_no_1", result.getContent().getFirst().getFirstName());
+        assertEquals("last_name_no_1", result.getContent().getFirst().getLastName());
 
-        assertEquals("b_username_no_1", result.getContent().getLast().getUsername());
-        assertEquals("first_name_no_1", result.getContent().getLast().getFirstName());
-        assertEquals("last_name_no_1", result.getContent().getLast().getLastName());
+        assertEquals("b_username_no_2", result.getContent().getLast().getUsername());
+        assertEquals("first_name_no_2", result.getContent().getLast().getFirstName());
+        assertEquals("last_name_no_2", result.getContent().getLast().getLastName());
+    }
+
+    @Test
+    void getAllAccountsMatchingPhrasesWithPaginationReturnEmptyPage() {
+        List<Account> accountsOnPage = new ArrayList<>();
+        Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "username");
+        Page<Account> accounts = new PageImpl<>(accountsOnPage, pageable, 0);
+        when(accountRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(accounts);
+        List<String> phrases = new ArrayList<>();
+
+        PagingResult<AccountOnPageDTO> result = underTest.getAllAccountsMatchingPhrasesWithPagination(0,
+                2, Sort.Direction.ASC, "username", phrases);
+
+        assertNotNull(result);
+        assertNotNull(result.getContent());
+        assertEquals(0, result.getContent().size());
     }
 }
