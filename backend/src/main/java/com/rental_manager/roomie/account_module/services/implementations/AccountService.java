@@ -159,4 +159,14 @@ public class AccountService implements IAccountService {
         Account account = accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
         return AccountConverter.convertAccountToAccountDto(account);
     }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    public void changeMyPassword(UUID accountId, String newPassword) throws AccountNotFoundException {
+        //todo
+        //remove accountId argument and replace it by security context holder
+        Account accountToBeModified = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
+        accountToBeModified.setPassword(newPassword);
+        accountRepository.saveAndFlush(accountToBeModified);
+    }
 }

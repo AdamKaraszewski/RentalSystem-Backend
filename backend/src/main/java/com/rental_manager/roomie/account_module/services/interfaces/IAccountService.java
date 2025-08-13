@@ -28,4 +28,6 @@ public interface IAccountService {
     PagingResult<AccountOnPageDTO> getAllAccountsMatchingPhrasesWithPagination(int pageNumber, int pageSize, Sort.Direction direction, String sortField, List<String> phrases);
 
     AccountDTO getAccountById(UUID id) throws AccountNotFoundException;
+
+    void changeMyPassword(UUID accountId, String newPassword) throws AccountNotFoundException;
 }

@@ -35,6 +35,7 @@ class AccountConverterTest {
     void convertAccountToAccountDTO() {
         var accountToBeConverted = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
         var landlordRole = new Landlord(accountToBeConverted);
+        accountToBeConverted.addRole(landlordRole);
 
         var actual = AccountConverter.convertAccountToAccountDto(accountToBeConverted);
 

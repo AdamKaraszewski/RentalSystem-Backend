@@ -8,7 +8,6 @@ import com.rental_manager.roomie.account_module.repositories.VerificationTokenRe
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.Role;
 import com.rental_manager.roomie.entities.roles.Admin;
-import com.rental_manager.roomie.entities.roles.Client;
 import com.rental_manager.roomie.entities.roles.Landlord;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
@@ -311,6 +310,25 @@ class AccountServiceTest {
         when(accountRepository.findById(ID)).thenReturn(Optional.empty());
 
         var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> underTest.getAccountById(ID));
+
+        assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, exceptionThrown.getMessage());
+    }
+
+    @Test
+    void changeMyPasswordSuccessfully() {
+        var accountToBeModified = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
+        when(accountRepository.findById(ID)).thenReturn(Optional.of(accountToBeModified));
+
+        underTest.changeMyPassword(ID, "newPassword_xyz");
+
+        assertEquals("newPassword_xyz", accountToBeModified.getPassword());
+    }
+
+    @Test
+    void changeMyPasswordThrowsAccountNotFoundException() {
+        when(accountRepository.findById(ID)).thenThrow(new AccountNotFoundException());
+
+        var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> underTest.changeMyPassword(ID, "newPassword_xyz"));
 
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, exceptionThrown.getMessage());
     }
