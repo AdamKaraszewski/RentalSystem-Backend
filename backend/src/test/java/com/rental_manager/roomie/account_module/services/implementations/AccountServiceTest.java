@@ -33,6 +33,7 @@ import static com.rental_manager.roomie.AccountModuleTestUtility.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -329,6 +330,32 @@ class AccountServiceTest {
         when(accountRepository.findById(ID)).thenThrow(new AccountNotFoundException());
 
         var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> underTest.changeMyPassword(ID, "newPassword_xyz"));
+
+        assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, exceptionThrown.getMessage());
+    }
+
+    @Test
+    void editMyAccountChangeFirstNameAndLastNameSuccessfully() {
+        var accountToBeModified = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
+        when(accountRepository.findById(ID)).thenReturn(Optional.of(accountToBeModified));
+        when(accountRepository.saveAndFlush(accountToBeModified)).thenReturn(accountToBeModified);
+
+        var modifiedAccountDto = underTest.editMyAccount(ID, "newFirstName_xyz", "newLastName_xyz");
+
+        assertEquals("newFirstName_xyz", accountToBeModified.getFirstName());
+        assertEquals("newLastName_xyz", accountToBeModified.getLastName());
+        assertNotNull(modifiedAccountDto);
+        assertEquals("newFirstName_xyz", modifiedAccountDto.getFirstName());
+        assertEquals("newLastName_xyz", modifiedAccountDto.getLastName());
+    }
+
+    @Test
+    void editMyAccountThrowsAccountNotFoundException() {
+        when(accountRepository.findById(ID)).thenReturn(Optional.empty());
+
+        var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> {
+            underTest.editMyAccount(ID, "newFirstName_xyz", "newLastName_xyz");
+        });
 
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, exceptionThrown.getMessage());
     }

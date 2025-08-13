@@ -163,10 +163,21 @@ public class AccountService implements IAccountService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
     public void changeMyPassword(UUID accountId, String newPassword) throws AccountNotFoundException {
-        //todo
-        //remove accountId argument and replace it by security context holder
         Account accountToBeModified = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
         accountToBeModified.setPassword(newPassword);
         accountRepository.saveAndFlush(accountToBeModified);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    public AccountDTO editMyAccount(UUID accountId, String newFirstName, String newLastName) throws AccountNotFoundException {
+        Account accountToBeModified = accountRepository.findById(accountId)
+                .map(account -> {
+                    account.setFirstName(newFirstName);
+                    account.setLastName(newLastName);
+                    return account;
+                })
+                .orElseThrow(AccountNotFoundException::new);
+        return AccountConverter.convertAccountToAccountDto(accountRepository.saveAndFlush(accountToBeModified));
     }
 }

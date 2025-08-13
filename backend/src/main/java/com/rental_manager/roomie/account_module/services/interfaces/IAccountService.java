@@ -30,4 +30,6 @@ public interface IAccountService {
     AccountDTO getAccountById(UUID id) throws AccountNotFoundException;
 
     void changeMyPassword(UUID accountId, String newPassword) throws AccountNotFoundException;
+
+    AccountDTO editMyAccount(UUID accountId, String newFirstName, String newLastName) throws AccountNotFoundException;
 }
