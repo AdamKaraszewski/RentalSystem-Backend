@@ -1,6 +1,6 @@
 package com.rental_manager.roomie.entities;
 
-import com.rental_manager.roomie.config.database.DatabaseConstraints;
+import com.rental_manager.roomie.config.Constraints;
 import com.rental_manager.roomie.config.database.DatabaseStructures;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class VerificationToken extends OneTimeUseToken {
 
     @Column(name = DatabaseStructures.TOKEN_VALUE_COLUMN, updatable = false, nullable = false, unique = true,
-            length = DatabaseConstraints.EMAIL_VERIFICATION_TOKEN_LENGTH)
+            length = Constraints.EMAIL_VERIFICATION_TOKEN_LENGTH)
     @Getter
     private String tokenValue;
 

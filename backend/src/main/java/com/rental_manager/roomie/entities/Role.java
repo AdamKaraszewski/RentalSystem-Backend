@@ -1,6 +1,6 @@
 package com.rental_manager.roomie.entities;
 
-import com.rental_manager.roomie.config.database.DatabaseConstraints;
+import com.rental_manager.roomie.config.Constraints;
 import com.rental_manager.roomie.config.database.DatabaseStructures;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import jakarta.persistence.*;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @Entity
 @Table(name = DatabaseStructures.TABLE_ACCOUNT_ROLE, uniqueConstraints = {
         @UniqueConstraint(
-                name = DatabaseConstraints.UNIQUE_ACCOUNT_ID_ROLE,
+                name = Constraints.UNIQUE_ACCOUNT_ID_ROLE,
                 columnNames = {DatabaseStructures.ACCOUNT_ID_COLUMN, DatabaseStructures.ROLE_NAME_COLUMN}) })
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor

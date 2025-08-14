@@ -3,7 +3,7 @@ package com.rental_manager.roomie.account_module.services.implementations;
 import com.rental_manager.roomie.account_module.repositories.AccountRepository;
 import com.rental_manager.roomie.account_module.repositories.ResetPasswordTokenRepository;
 import com.rental_manager.roomie.account_module.services.interfaces.IResetPasswordService;
-import com.rental_manager.roomie.config.database.DatabaseConstraints;
+import com.rental_manager.roomie.config.Constraints;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.ResetPasswordToken;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
@@ -40,7 +40,7 @@ public class ResetPasswordService implements IResetPasswordService {
     public void generateResetPasswordToken(String email) throws AccountNotFoundException {
         //check if account with entered email exist
         Account account = accountRepository.findByEmail(email).orElseThrow(AccountNotFoundException::new);
-        String tokenValue = RandomStringUtils.random(DatabaseConstraints.RESET_PASSWORD_TOKEN_LENGTH, '0',
+        String tokenValue = RandomStringUtils.random(Constraints.RESET_PASSWORD_TOKEN_LENGTH, '0',
                 'z' + 1, true, true, null, randomGenerator);
         ResetPasswordToken resetPasswordToken = new ResetPasswordToken(tokenValue, account, tokenLifeTime);
         //check if there is a token linked with account. If token exists delete it and generate a new one

@@ -12,7 +12,8 @@ public interface IRegisterAccountController {
     @Operation(summary = "Register account with Client role",
             description = "Endpoint provides account registration. The HTTP request must contain RegisterClientDTO in its body.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Account successfully created. Verification email will be send.")
+            @ApiResponse(responseCode = "201", description = "Account successfully created. Verification email will be send."),
+            @ApiResponse(responseCode = "422", description = "Specified data do not follow validation rules")
     })
     ResponseEntity<Void> registerClientAccount(@RequestBody RegisterClientDTO registerClientDTO);
 }

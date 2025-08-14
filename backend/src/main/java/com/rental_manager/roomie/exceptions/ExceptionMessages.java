@@ -8,6 +8,20 @@ public class ExceptionMessages {
     public static final String RESET_PASSWORD_TOKEN_DOES_NOT_MATCH = "reset.password.token.does.not.match";
 
     // VALIDATION EXCEPTIONS
+    public static final String FIELD_NULL_VALUE = "field.value.null";
+
+    public static final String FIRST_NAME_LENGTH_NOT_VALID = "account.first.name.length.not.valid";
+    public static final String FIRST_NAME_REGEX_NOT_FOLLOWED = "account.first.name.regex.not.followed";
+
+    public static final String LAST_NAME_LENGTH_NOT_VALID = "account.last.name.length.not.valid";
+    public static final String LAST_NAME_REGEX_NOT_FOLLOWED = "account.last.name.regex.not.followed";
+
+    public static final String USERNAME_LENGTH_NOT_VALID = "account.username.length.not.valid";
+    public static final String USERNAME_REGEX_NOT_FOLLOWED = "account.username.regex.not.followed";
+
+    public static final String EMAIL_NOT_VALID = "account.email.not.valid";
+    public static final String PASSWORD_LENGTH_NOT_VALID = "account.password.length.not.valid";
+
     public static final String PASSWORD_DOES_NOT_MATCH = "repeat.password.does.not.match";
 
     //BUSINESS LOGIC EXCEPTION

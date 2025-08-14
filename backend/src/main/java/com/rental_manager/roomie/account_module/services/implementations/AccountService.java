@@ -5,7 +5,7 @@ import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.account_module.repositories.AccountRepository;
 import com.rental_manager.roomie.account_module.repositories.VerificationTokenRepository;
 import com.rental_manager.roomie.account_module.services.interfaces.IAccountService;
-import com.rental_manager.roomie.config.database.DatabaseConstraints;
+import com.rental_manager.roomie.config.Constraints;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.Role;
 import com.rental_manager.roomie.entities.VerificationToken;
@@ -55,7 +55,7 @@ public class AccountService implements IAccountService {
     @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
     public void registerClient(Account account) {
         Client clientRole = new Client(account);
-        String tokenValue = RandomStringUtils.random(DatabaseConstraints.EMAIL_VERIFICATION_TOKEN_LENGTH, '0',
+        String tokenValue = RandomStringUtils.random(Constraints.EMAIL_VERIFICATION_TOKEN_LENGTH, '0',
                 'z' + 1, true, true, null, randomGenerator);
         VerificationToken verificationToken = new VerificationToken(tokenValue, account, tokenLifeTime);
         account.addRole(clientRole);
@@ -154,7 +154,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager", readOnly = true)
     public AccountDTO getAccountById(UUID id) throws AccountNotFoundException {
         Account account = accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
         return AccountConverter.convertAccountToAccountDto(account);

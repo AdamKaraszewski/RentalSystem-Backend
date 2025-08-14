@@ -1,7 +1,7 @@
 package com.rental_manager.roomie;
 
 import com.rental_manager.roomie.account_module.dtos.RegisterClientDTO;
-import com.rental_manager.roomie.config.database.DatabaseConstraints;
+import com.rental_manager.roomie.config.Constraints;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.ResetPasswordToken;
 import com.rental_manager.roomie.entities.VerificationToken;
@@ -28,9 +28,9 @@ public class AccountModuleTestUtility {
     public static final String NEW_PASSWORD = "newPassword";
     private static final Random RANDOM_GENERATOR = new SecureRandom();
     public static final String VERIFICATION_TOKEN_VALUE = RandomStringUtils.random(
-            DatabaseConstraints.EMAIL_VERIFICATION_TOKEN_LENGTH, '0', 'z' + 1, true, true, null, RANDOM_GENERATOR);
+            Constraints.EMAIL_VERIFICATION_TOKEN_LENGTH, '0', 'z' + 1, true, true, null, RANDOM_GENERATOR);
     public static final String RESET_PASSWORD_TOKEN_VALUE = RandomStringUtils.random(
-            DatabaseConstraints.RESET_PASSWORD_TOKEN_LENGTH, '0', 'z' + 1, true, true, null, RANDOM_GENERATOR);
+            Constraints.RESET_PASSWORD_TOKEN_LENGTH, '0', 'z' + 1, true, true, null, RANDOM_GENERATOR);
     public static final long VERIFICATION_TOKEN_LIFE_TIME = 1440; //minutes
     public static final long REST_PASSWORD_TOKEN_LIFE_TIME = 15; //minutes
 
