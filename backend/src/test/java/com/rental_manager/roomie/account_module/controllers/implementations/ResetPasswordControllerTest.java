@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.rental_manager.roomie.AccountModuleTestUtility.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -30,6 +31,8 @@ class ResetPasswordControllerTest {
 
     private static final String GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT = "/reset-password";
     private static final String RESET_PASSWORD_ENDPOINT = "/reset-password/" + RESET_PASSWORD_TOKEN_VALUE;
+
+    private static final String INVALID_EMAIL = "invalidEmail";
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -52,6 +55,46 @@ class ResetPasswordControllerTest {
                         .content(requestBody)
         )
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void generateResetPasswordTokenThrowsValidationExceptionWhenEmailValueIsNull() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(EMAIL_FIELD, null);
+        String requestBody = mapper.writeValueAsString(data);
+        doNothing().when(resetPasswordService).generateResetPasswordToken(any());
+
+        mockMvc.perform(
+                post(GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        )
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value(422))
+                .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors", hasSize(1)))
+                .andExpect(jsonPath("$.validationErrors[0].fieldName").value(EMAIL_FIELD))
+                .andExpect(jsonPath("$.validationErrors[0].message").value(ExceptionMessages.FIELD_NULL_VALUE));
+    }
+
+    @Test
+    void generateResetPasswordTokenThrowsValidationExceptionWhenEmailDoNotMatchRegex() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(EMAIL_FIELD, INVALID_EMAIL);
+        String requestBody = mapper.writeValueAsString(data);
+        doNothing().when(resetPasswordService).generateResetPasswordToken(any());
+
+        mockMvc.perform(
+                post(GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        )
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value(422))
+                .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors", hasSize(1)))
+                .andExpect(jsonPath("$.validationErrors[0].fieldName").value(EMAIL_FIELD))
+                .andExpect(jsonPath("$.validationErrors[0].message").value(ExceptionMessages.EMAIL_NOT_VALID));
     }
 
     @Test

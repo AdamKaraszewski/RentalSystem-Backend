@@ -7,6 +7,7 @@ import com.rental_manager.roomie.account_module.services.implementations.ResetPa
 import com.rental_manager.roomie.account_module.services.interfaces.IResetPasswordService;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.ResetPasswordTokenDoesNotMatchException;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class ResetPasswordController implements IResetPasswordController {
     @Override
     @PostMapping
     public ResponseEntity<Void> generateResetPasswordToken(
-            @RequestBody GenerateResetPasswordTokenDTO generateResetPasswordTokenDTO) throws AccountNotFoundException {
+            @RequestBody @Valid GenerateResetPasswordTokenDTO generateResetPasswordTokenDTO) throws AccountNotFoundException {
         resetPasswordService.generateResetPasswordToken(generateResetPasswordTokenDTO.getEmail());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
