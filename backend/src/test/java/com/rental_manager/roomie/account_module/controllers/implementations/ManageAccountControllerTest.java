@@ -1,14 +1,14 @@
 package com.rental_manager.roomie.account_module.controllers.implementations;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rental_manager.roomie.account_module.dtos.AccountDTO;
 import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.account_module.services.implementations.AccountService;
-import com.rental_manager.roomie.entities.Account;
+import com.rental_manager.roomie.entities.roles.RolesEnum;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
 import com.rental_manager.roomie.utils.searching_with_pagination.PagingResult;
-import com.rental_manager.roomie.utils.account_module_utils.AccountConverter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,11 +18,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.rental_manager.roomie.AccountModuleTestUtility.*;
+import static com.rental_manager.roomie.utils.account_module_utils.PaginationTestUtility.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -35,7 +35,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class ManageAccountControllerTest {
 
-    private static final String BASE_ENDPOINT = "/accounts";
+    private static final String CHANGE_ROLE_ENDPOINT = "/accounts/" + UUID.randomUUID() + "/roles";
+    private static final String BLOCK_ACCOUNT_ENDPOINT = "/accounts/" + UUID.randomUUID() + "/block";
+    private static final String ACTIVATE_ACCOUNT_ENDPOINT = "/accounts/" + UUID.randomUUID() + "/activate";
+    private static final String GET_ACCOUNTS_ENDPOINT = "/accounts";
+    private static final String GET_ACCOUNT_BY_ID_ENDPOINT = "/accounts/" + UUID.randomUUID();
+
+    private static final String CLIENT_ROLE = "CLIENT";
+    private static final String LANDLORD_ROLE = "LANDLORD";
+    private static final String ADMIN_ROLE = "ADMIN";
+    private static final String INVALID_ROLE = "NOT_EXISTING_ROLE";
+
+    private static final AccountOnPageDTO ACCOUNT_ON_PAGE_DTO_NO_1 = new AccountOnPageDTO(
+            USERNAME_NO_1,
+            FIRST_NAME_NO_1,
+            LAST_NAME_NO_1
+    );
+
+    private static final AccountOnPageDTO ACCOUNT_ON_PAGE_DTO_NO_2 = new AccountOnPageDTO(
+            USERNAME_NO_2,
+            FIRST_NAME_NO_2,
+            LAST_NAME_NO_2
+    );
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,50 +68,83 @@ class ManageAccountControllerTest {
 
     @Test
     void addRoleReturnOkStatusCodeTest() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, CLIENT_ROLE);
+        String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
         doNothing().when(accountService).addRole(any(), any());
 
         mockMvc.perform(
-                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/roles")
+                post(CHANGE_ROLE_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                "role": "CLIENT"
-                                }
-                                """)
+                        .content(requestBody)
         )
                 .andExpect(status().isOk());
     }
 
     @Test
     void addRoleReturnNotFoundStatusAndAccountNotFoundDtoWhenAccountIsNotFoundTest() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, CLIENT_ROLE);
+        String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
         doThrow(new AccountNotFoundException()).when(accountService).addRole(any(), any());
 
         mockMvc.perform(
-                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/roles")
+                post(CHANGE_ROLE_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                "role": "CLIENT"
-                                }
-                                """)
+                        .content(requestBody)
         )
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value(404))
-                .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_NOT_FOUND));;
+                .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_NOT_FOUND));
+    }
+
+    @Test
+    void addRoleReturnUnprocessableEntityStatusCodeAndValidationErrorsDtoWhenSpecifiedRoleIsNull() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, null);
+        String requestBody = mapper.writeValueAsString(data);
+        doNothing().when(accountService).addRole(any(), any());
+
+        mockMvc.perform(
+                post(CHANGE_ROLE_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        )
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value(422))
+                .andExpect(jsonPath("$.validationErrors[0].fieldName").value(ROLE_FIELD))
+                .andExpect(jsonPath("$.validationErrors[0].message").value(ExceptionMessages.FIELD_NULL_VALUE));
+    }
+
+    @Test
+    void addRoleReturnUnprocessableEntityStatusCodeAndValidationErrorsDtoWhenSpecifiedRoleDoesNotExist() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, INVALID_ROLE);
+        String requestBody = mapper.writeValueAsString(data);
+        doNothing().when(accountService).addRole(any(), any());
+
+        mockMvc.perform(
+                post(CHANGE_ROLE_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        )
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value(422))
+                .andExpect(jsonPath("$.validationErrors[0].fieldName").value(ROLE_FIELD))
+                .andExpect(jsonPath("$.validationErrors[0].message").value(ExceptionMessages.ROLE_DOES_NOT_EXIST));
     }
 
     @Test
     void addRoleReturnConflictStatusAndBusinessLogicExceptionDtoWhenUserAlreadyOwnsRoleTest() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, CLIENT_ROLE);
+        String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
         doThrow(new RoleAlreadyOwnedException()).when(accountService).addRole(any(), any());
 
         mockMvc.perform(
-                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/roles")
+                post(CHANGE_ROLE_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                "role": "CLIENT"
-                                }
-                                """)
+                        .content(requestBody)
         )
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errorCode").value(409))
@@ -97,32 +153,30 @@ class ManageAccountControllerTest {
 
     @Test
     void archiveRoleReturnOkStatusCodeTest() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, LANDLORD_ROLE);
+        String requestBody = mapper.writeValueAsString(data);
         doNothing().when(accountService).archiveRole(any(), any());
 
         mockMvc.perform(
-                delete(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/roles")
+                delete(CHANGE_ROLE_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                "role": "LANDLORD"
-                                }
-                                """)
+                        .content(requestBody)
         )
                 .andExpect(status().isOk());
     }
 
     @Test
     void archiveRoleReturnNotFoundStatusCodeAndResourceNotExceptionDtoWhenSpecifiedAccountDoesNotExistTest() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, LANDLORD_ROLE);
+        String requestBody = mapper.writeValueAsString(data);
         doThrow(new AccountNotFoundException()).when(accountService).archiveRole(any(), any());
 
         mockMvc.perform(
-                delete(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/roles")
+                delete(CHANGE_ROLE_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                "role": "LANDLORD"
-                                }
-                                """)
+                        .content(requestBody)
         )
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value(404))
@@ -130,17 +184,52 @@ class ManageAccountControllerTest {
     }
 
     @Test
+    void archiveRoleReturnUnprocessableEntityStatusAndValidationErrorsDtoWhenSpecifiedRoleIsNull() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, null);
+        String requestBody = mapper.writeValueAsString(data);
+        doNothing().when(accountService).archiveRole(any(), any());
+
+        mockMvc.perform(
+                delete(CHANGE_ROLE_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        )
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value(422))
+                .andExpect(jsonPath("$.validationErrors[0].fieldName").value(ROLE_FIELD))
+                .andExpect(jsonPath("$.validationErrors[0].message").value(ExceptionMessages.FIELD_NULL_VALUE));
+    }
+
+    @Test
+    void archiveRoleReturnUnprocessableEntityCodeAndValidationErrorsDtoWhenSpecifiedRoleDoesNotExist() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, INVALID_ROLE);
+        String requestBody = mapper.writeValueAsString(data);
+        doNothing().when(accountService).archiveRole(any(), any());
+
+        mockMvc.perform(
+                delete(CHANGE_ROLE_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        )
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value(422))
+                .andExpect(jsonPath("$.validationErrors[0].fieldName").value(ROLE_FIELD))
+                .andExpect(jsonPath("$.validationErrors[0].message").value(ExceptionMessages.ROLE_DOES_NOT_EXIST));
+    }
+
+    @Test
     void archiveRoleReturnConflictStatusCodeAndBusinessLogicExceptionDtoWhenAccountDoesNotOweSpecifiedRoleTest() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, CLIENT_ROLE);
+        String requestBody = mapper.writeValueAsString(data);
         doThrow(new RoleIsNotOwnedException()).when(accountService).archiveRole(any(), any());
 
         mockMvc.perform(
-                delete(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/roles")
+                delete(CHANGE_ROLE_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                "role": "CLIENT"
-                                }
-                                """)
+                        .content(requestBody)
         )
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errorCode").value(409))
@@ -149,16 +238,15 @@ class ManageAccountControllerTest {
 
     @Test
     void archiveRoleReturnConflictStatusCodeAndBusinessLogicExceptionDtoWhenArchiveRoleArchivesTheLastActiveRoleTest() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(ROLE_FIELD, ADMIN_ROLE);
+        String requestBody = mapper.writeValueAsString(data);
         doThrow(new AccountDoesNotOweAnyRoleException()).when(accountService).archiveRole(any(), any());
 
         mockMvc.perform(
-                delete(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/roles")
+                delete(CHANGE_ROLE_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                "role": "ADMIN"
-                                }
-                                """)
+                        .content(requestBody)
         )
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errorCode").value(409))
@@ -171,7 +259,7 @@ class ManageAccountControllerTest {
         doNothing().when(accountService).blockAccount(any());
 
         mockMvc.perform(
-                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/block")
+                post(BLOCK_ACCOUNT_ENDPOINT)
         )
                 .andExpect(status().isOk());
     }
@@ -181,7 +269,7 @@ class ManageAccountControllerTest {
         doThrow(new AccountNotFoundException()).when(accountService).blockAccount(any());
 
         mockMvc.perform(
-                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/block")
+                post(BLOCK_ACCOUNT_ENDPOINT)
         )
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value(404))
@@ -193,7 +281,7 @@ class ManageAccountControllerTest {
         doThrow(new AccountAlreadyBlockedException()).when(accountService).blockAccount(any());
 
         mockMvc.perform(
-                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/block")
+                post(BLOCK_ACCOUNT_ENDPOINT)
         )
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errorCode").value(409))
@@ -205,7 +293,7 @@ class ManageAccountControllerTest {
         doNothing().when(accountService).activateAccount(any());
 
         mockMvc.perform(
-                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/activate")
+                post(ACTIVATE_ACCOUNT_ENDPOINT)
         )
                 .andExpect(status().isOk());
     }
@@ -215,7 +303,7 @@ class ManageAccountControllerTest {
         doThrow(new AccountNotFoundException()).when(accountService).activateAccount(any());
 
         mockMvc.perform(
-                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/activate")
+                post(ACTIVATE_ACCOUNT_ENDPOINT)
         )
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value(404))
@@ -228,7 +316,7 @@ class ManageAccountControllerTest {
         doThrow(new AccountAlreadyActiveException()).when(accountService).activateAccount(any());
 
         mockMvc.perform(
-                post(BASE_ENDPOINT + "/" + UUID.randomUUID() + "/activate")
+                post(ACTIVATE_ACCOUNT_ENDPOINT)
         )
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errorCode").value(409))
@@ -237,129 +325,135 @@ class ManageAccountControllerTest {
 
     @Test
     void getAllAccountsMatchingPhraseWithPaginationReturnsNotEmptyPage() throws Exception {
-        List<Account> accounts = new ArrayList<>();
-        var account1 = createNotVerifiedAccount("a_username_no_1", "email.no1@example.com",
-                "first_name_no_1", "last_name_no_1");
-        var account2 = createNotVerifiedAccount("b_username_no_2", "email.no2@example.com",
-                "first_name_no_2", "last_name_no_2");
-        accounts.add(account1);
-        accounts.add(account2);
+        List<AccountOnPageDTO> pageContent = new ArrayList<>();
+        pageContent.add(ACCOUNT_ON_PAGE_DTO_NO_1);
+        pageContent.add(ACCOUNT_ON_PAGE_DTO_NO_2);
 
-        Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "username");
-        Page<Account> accountsPage = new PageImpl<>(accounts, pageable, 2);
-        List<AccountOnPageDTO> pageDTOContent = accounts.stream()
-                .map(AccountConverter::convertAccountToAccountOnPageDto).toList();
+        Integer totalPages = 2;
+        long totalElements = 4;
+        int pageSize = 2;
+        int pageNumber = 0;
+
         PagingResult<AccountOnPageDTO> accountPageDTO = new PagingResult<>(
-                pageDTOContent,
-                accountsPage.getTotalPages(),
-                accountsPage.getTotalElements(),
-                accountsPage.getSize(),
-                accountsPage.getNumber(),
-                accountsPage.isEmpty()
+                pageContent,
+                totalPages,
+                totalElements,
+                pageSize,
+                pageNumber,
+                false
         );
 
-        when(accountService.getAllAccountsMatchingPhrasesWithPagination(eq(0), eq(2), eq(Sort.Direction.ASC),
-                eq("username"), anyList())).thenReturn(accountPageDTO);
+        Map<String, Object> data = new HashMap<>();
+        data.put(PAGE_NUMBER_FIELD, pageNumber);
+        data.put(PAGE_SIZE_FIELD, pageSize);
+        data.put(DIRECTION_FIELD, DIRECTION_ASC);
+        data.put(SORT_FIELD, USERNAME_FIELD);
+        data.put(PHRASES_FIELD, new ArrayList<>(List.of("user")));
+        String requestBody = mapper.writeValueAsString(data);
+        when(accountService.getAllAccountsMatchingPhrasesWithPagination(eq(pageNumber), eq(pageSize), eq(Sort.Direction.ASC),
+                eq(USERNAME_FIELD), anyList())).thenReturn(accountPageDTO);
 
         mockMvc.perform(
-                get(BASE_ENDPOINT)
+                get(GET_ACCOUNTS_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                "pageNumber": 0,
-                                "pageSize": 2,
-                                "direction": "ASC",
-                                "sortField": "username",
-                                "phrases": [
-                                "user"
-                                ]
-                                }
-                                """)
+                        .content(requestBody)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[0].username").value("a_username_no_1"))
-                .andExpect(jsonPath("$.content[0].firstName").value("first_name_no_1"))
-                .andExpect(jsonPath("$.content[0].lastName").value("last_name_no_1"))
-                .andExpect(jsonPath("$.totalPages").value(1))
-                .andExpect(jsonPath("$.totalElements").value(2))
-                .andExpect(jsonPath("$.size").value(2))
-                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].username").value(USERNAME_NO_1))
+                .andExpect(jsonPath("$.content[0].firstName").value(FIRST_NAME_NO_1))
+                .andExpect(jsonPath("$.content[0].lastName").value(LAST_NAME_NO_1))
+                .andExpect(jsonPath("$.content[1].username").value(USERNAME_NO_2))
+                .andExpect(jsonPath("$.content[1].firstName").value(FIRST_NAME_NO_2))
+                .andExpect(jsonPath("$.content[1].lastName").value(LAST_NAME_NO_2))
+                .andExpect(jsonPath("$.totalPages").value(totalPages))
+                .andExpect(jsonPath("$.totalElements").value(totalElements))
+                .andExpect(jsonPath("$.size").value(pageSize))
+                .andExpect(jsonPath("$.page").value(pageNumber))
                 .andExpect(jsonPath("$.empty").value(false));
     }
 
     @Test
     void getAllAccountsMatchingPhraseWithPaginationReturnsEmptyPage() throws Exception {
-        List<Account> accounts = new ArrayList<>();
+        List<AccountOnPageDTO> pageContent = new ArrayList<>();
 
-        Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "username");
-        Page<Account> accountsPage = new PageImpl<>(accounts, pageable, 0);
-        List<AccountOnPageDTO> pageDTOContent = accounts.stream()
-                .map(AccountConverter::convertAccountToAccountOnPageDto).toList();
+        Integer totalPages = 0;
+        long totalElements = 0;
+        int pageSize = 2;
+        int pageNumber = 0;
+
         PagingResult<AccountOnPageDTO> accountPageDTO = new PagingResult<>(
-                pageDTOContent,
-                accountsPage.getTotalPages(),
-                accountsPage.getTotalElements(),
-                accountsPage.getSize(),
-                accountsPage.getNumber(),
-                accountsPage.isEmpty()
+                pageContent,
+                totalPages,
+                totalElements,
+                pageSize,
+                pageNumber,
+                true
         );
 
-        when(accountService.getAllAccountsMatchingPhrasesWithPagination(eq(0), eq(2), eq(Sort.Direction.ASC),
-                eq("username"), anyList())).thenReturn(accountPageDTO);
+        Map<String, Object> data = new HashMap<>();
+        data.put(PAGE_NUMBER_FIELD, pageNumber);
+        data.put(PAGE_SIZE_FIELD, pageSize);
+        data.put(DIRECTION_FIELD, DIRECTION_ASC);
+        data.put(SORT_FIELD, USERNAME_FIELD);
+        data.put(PHRASES_FIELD, new ArrayList<>(List.of("not_existing_user")));
+        String requestBody = mapper.writeValueAsString(data);
+        when(accountService.getAllAccountsMatchingPhrasesWithPagination(eq(pageNumber), eq(pageSize), eq(Sort.Direction.ASC),
+                eq(USERNAME_FIELD), anyList())).thenReturn(accountPageDTO);
 
         mockMvc.perform(
-                        get(BASE_ENDPOINT)
+                        get(GET_ACCOUNTS_ENDPOINT)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                {
-                                "pageNumber": 0,
-                                "pageSize": 2,
-                                "direction": "ASC",
-                                "sortField": "username",
-                                "phrases": [
-                                "not_existing_username"
-                                ]
-                                }
-                                """)
+                                .content(requestBody)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.totalPages").value(0))
-                .andExpect(jsonPath("$.totalElements").value(0))
-                .andExpect(jsonPath("$.size").value(2))
-                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.content", hasSize(0)))
+                .andExpect(jsonPath("$.totalPages").value(totalPages))
+                .andExpect(jsonPath("$.totalElements").value(totalElements))
+                .andExpect(jsonPath("$.size").value(pageSize))
+                .andExpect(jsonPath("$.page").value(pageNumber))
                 .andExpect(jsonPath("$.empty").value(true));
     }
 
     @Test
     void getAccountByIdReturnsAccountDtoAndStatusCodeOk() throws Exception {
         List<String> roles = new ArrayList<>();
-        roles.add("LANDLORD");
-        roles.add("CLIENT");
-        AccountDTO accountDTO = new AccountDTO(FIRST_NAME, LAST_NAME, USERNAME, EMAIL, true, true, roles);
-        when(accountService.getAccountById(eq(ID))).thenReturn(accountDTO);
+        roles.add(RolesEnum.LANDLORD.name());
+        roles.add(RolesEnum.CLIENT.name());
+        AccountDTO accountDTO = new AccountDTO(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                roles);
+        when(accountService.getAccountById(any())).thenReturn(accountDTO);
 
         mockMvc.perform(
-                get(BASE_ENDPOINT + "/" + ID))
+                get(GET_ACCOUNT_BY_ID_ENDPOINT)
+                )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value(FIRST_NAME))
-                .andExpect(jsonPath("$.lastName").value(LAST_NAME))
-                .andExpect(jsonPath("$.username").value(USERNAME))
-                .andExpect(jsonPath("$.email").value(EMAIL))
+                .andExpect(jsonPath("$.firstName").value(FIRST_NAME_NO_1))
+                .andExpect(jsonPath("$.lastName").value(LAST_NAME_NO_1))
+                .andExpect(jsonPath("$.username").value(USERNAME_NO_1))
+                .andExpect(jsonPath("$.email").value(EMAIL_NO_1))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.verified").value(true))
                 .andExpect(jsonPath("$.roles").isArray())
-                .andExpect(jsonPath("$.roles[0]").value("LANDLORD"))
-                .andExpect(jsonPath("$.roles[1]").value("CLIENT"));
+                .andExpect(jsonPath("$.roles", hasSize(2)))
+                .andExpect(jsonPath("$.roles[0]").value(RolesEnum.LANDLORD.name()))
+                .andExpect(jsonPath("$.roles[1]").value(RolesEnum.CLIENT.name()));
     }
 
     @Test
     void getAccountByIdReturnResourceNotFoundDTOAndNotFoundStatusCode() throws Exception {
-        when(accountService.getAccountById(eq(ID))).thenThrow(new AccountNotFoundException());
+        when(accountService.getAccountById(any())).thenThrow(new AccountNotFoundException());
 
         mockMvc.perform(
-                get(BASE_ENDPOINT + "/" + ID))
+                get(GET_ACCOUNT_BY_ID_ENDPOINT))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value(404))
                 .andExpect(jsonPath("$.message").value(ExceptionMessages.ACCOUNT_NOT_FOUND));

@@ -1,6 +1,5 @@
 package com.rental_manager.roomie.account_module.controllers.implementations;
 
-import com.rental_manager.roomie.AccountModuleTestUtility;
 import com.rental_manager.roomie.account_module.services.implementations.AccountVerificationService;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.VerificationTokenDoesNotMatchException;
@@ -12,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.rental_manager.roomie.AccountModuleTestUtility.VERIFICATION_TOKEN_VALUE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -24,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class VerifyAccountControllerTest {
 
-    private static final String BASE_ENDPOINT = "/verify-account";
+    private static final String BASE_ENDPOINT = "/verify-account/" + VERIFICATION_TOKEN_VALUE;
 
     @Autowired
     private MockMvc mockMvc;
@@ -37,7 +36,7 @@ class VerifyAccountControllerTest {
         doNothing().when(accountVerificationService).verifyAccountUsingVerificationToken(any());
 
         mockMvc.perform(
-                post(BASE_ENDPOINT + "/" + AccountModuleTestUtility.VERIFICATION_TOKEN_VALUE)
+                post(BASE_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk());
@@ -49,7 +48,7 @@ class VerifyAccountControllerTest {
         doThrow(new VerificationTokenDoesNotMatchException()).when(accountVerificationService).verifyAccountUsingVerificationToken(any());
 
         mockMvc.perform(
-                        post(BASE_ENDPOINT + "/" + AccountModuleTestUtility.VERIFICATION_TOKEN_VALUE)
+                        post(BASE_ENDPOINT)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isNotFound())

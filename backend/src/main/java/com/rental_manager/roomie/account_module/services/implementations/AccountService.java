@@ -6,6 +6,7 @@ import com.rental_manager.roomie.account_module.repositories.AccountRepository;
 import com.rental_manager.roomie.account_module.repositories.VerificationTokenRepository;
 import com.rental_manager.roomie.account_module.services.interfaces.IAccountService;
 import com.rental_manager.roomie.config.Constraints;
+import com.rental_manager.roomie.config.database.TransactionManagersIds;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.Role;
 import com.rental_manager.roomie.entities.VerificationToken;
@@ -52,7 +53,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public void registerClient(Account account) {
         Client clientRole = new Client(account);
         String tokenValue = RandomStringUtils.random(Constraints.EMAIL_VERIFICATION_TOKEN_LENGTH, '0',
@@ -64,7 +65,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public void addRole(UUID accountId, RolesEnum roleName) throws AccountNotFoundException, RoleAlreadyOwnedException {
         Account account = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
         switch (roleName) {
@@ -75,7 +76,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public void archiveRole(UUID accountId, RolesEnum roleName) throws AccountNotFoundException, RoleIsNotOwnedException,
             AccountDoesNotOweAnyRoleException {
         Account account = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
@@ -94,11 +95,11 @@ public class AccountService implements IAccountService {
         accountRepository.saveAndFlush(account);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.MANDATORY, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     private void addRole(Account account, RolesEnum roleName, Function<Account, Role> roleConstructor) throws
             RoleAlreadyOwnedException {
         Optional<Role> roleToBeActivated = account.getRoles().stream()
-                .filter(r -> r.isActive() && r.getRole() == roleName)
+                .filter(r -> r.getRole() == roleName)
                 .findFirst();
         if(roleToBeActivated.isPresent()) {
             if (roleToBeActivated.get().isActive()) {
@@ -114,7 +115,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public void blockAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyBlockedException {
         Account accountToBeBlocked = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
         if(!accountToBeBlocked.isActive()) {
@@ -125,7 +126,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public void activateAccount(UUID accountId) throws AccountNotFoundException, AccountAlreadyActiveException {
         Account accountToBeActivated = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
         if(accountToBeActivated.isActive()) {
@@ -136,7 +137,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER, readOnly = true)
     public PagingResult<AccountOnPageDTO> getAllAccountsMatchingPhrasesWithPagination(
             int pageNumber, int pageSize, Sort.Direction direction, String sortField, List<String> phrases) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, direction, sortField);
@@ -154,14 +155,14 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager", readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER, readOnly = true)
     public AccountDTO getAccountById(UUID id) throws AccountNotFoundException {
         Account account = accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
         return AccountConverter.convertAccountToAccountDto(account);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public void changeMyPassword(UUID accountId, String newPassword) throws AccountNotFoundException {
         Account accountToBeModified = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
         accountToBeModified.setPassword(newPassword);
@@ -169,7 +170,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public AccountDTO editMyAccount(UUID accountId, String newFirstName, String newLastName) throws AccountNotFoundException {
         Account accountToBeModified = accountRepository.findById(accountId)
                 .map(account -> {

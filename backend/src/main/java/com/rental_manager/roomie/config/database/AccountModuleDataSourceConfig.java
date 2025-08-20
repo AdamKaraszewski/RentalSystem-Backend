@@ -19,7 +19,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableJpaRepositories(basePackages = "com.rental_manager.roomie.account_module.repositories",
         entityManagerFactoryRef = "accountModuleEntityManger",
-        transactionManagerRef = "accountModuleTransactionManager")
+        transactionManagerRef = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
 public class AccountModuleDataSourceConfig {
 
     @Value("${datasource.database.url}")
@@ -55,7 +55,7 @@ public class AccountModuleDataSourceConfig {
         return em;
     }
 
-    @Bean(name = "accountModuleTransactionManager")
+    @Bean(name = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public PlatformTransactionManager accountModulePlatformTransactionManager(
             @Qualifier("accountModuleEntityManger") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);

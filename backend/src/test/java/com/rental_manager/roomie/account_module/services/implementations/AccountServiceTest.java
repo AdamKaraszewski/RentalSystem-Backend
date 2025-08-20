@@ -11,10 +11,7 @@ import com.rental_manager.roomie.entities.roles.Admin;
 import com.rental_manager.roomie.entities.roles.Landlord;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountAlreadyActiveException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.AccountDoesNotOweAnyRoleException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleAlreadyOwnedException;
-import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotOwnedException;
+import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
 import com.rental_manager.roomie.utils.searching_with_pagination.PagingResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +25,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.rental_manager.roomie.AccountModuleTestUtility.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,106 +51,150 @@ class AccountServiceTest {
     }
 
     @Test
-    void addClientRoleToAccountWithoutClientRole() {
-        var account = createNotVerifiedAccountWithAdminRole();
+    void addClientRoleToAccountWithoutClientRoleWorksProperly() {
+        var accountWithoutClientRole = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                new ArrayList<>(List.of(RolesEnum.LANDLORD))
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountWithoutClientRole));
+        when(accountRepository.saveAndFlush(accountWithoutClientRole)).thenReturn(accountWithoutClientRole);
 
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
-        when(accountRepository.saveAndFlush(account)).thenReturn(account);
+        underTest.addRole(SIMPLE_UUID, RolesEnum.CLIENT);
 
-        underTest.addRole(ID, RolesEnum.CLIENT);
-
-        assertEquals(2, account.getRoles().size());
-        Optional<Role> addedRole = account.getRoles().stream()
-                .filter(r -> r.getRole() == RolesEnum.CLIENT)
+        assertEquals(2, accountWithoutClientRole.getRoles().size());
+        Optional<Role> addedRole = accountWithoutClientRole.getRoles().stream()
+                .filter(r -> r.getRole() == RolesEnum.CLIENT && r.isActive())
                 .findFirst();
         assertTrue(addedRole.isPresent());
     }
 
     @Test
-    void addLandlordRoleToAccountWithoutLandlordRole() {
-        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
+    void addLandlordRoleToAccountWithoutLandlordRoleWorksProperly() {
+        var accountWithoutLandlordRole = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                new ArrayList<>(List.of(RolesEnum.CLIENT))
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountWithoutLandlordRole));
+        when(accountRepository.saveAndFlush(accountWithoutLandlordRole)).thenReturn(accountWithoutLandlordRole);
 
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
-        when(accountRepository.saveAndFlush(account)).thenReturn(account);
+        underTest.addRole(SIMPLE_UUID, RolesEnum.LANDLORD);
 
-        underTest.addRole(ID, RolesEnum.LANDLORD);
-
-        assertEquals(2, account.getRoles().size());
-        Optional<Role> addedRole = account.getRoles().stream()
-                .filter(r -> r.getRole() == RolesEnum.LANDLORD).findFirst();
+        assertEquals(2, accountWithoutLandlordRole.getRoles().size());
+        Optional<Role> addedRole = accountWithoutLandlordRole.getRoles().stream()
+                .filter(r -> r.getRole() == RolesEnum.LANDLORD && r.isActive())
+                .findFirst();
         assertTrue(addedRole.isPresent());
     }
 
     @Test
     void addAdminRoleToAccountWithoutAdminRole() {
-        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
+        var accountWithoutAdminRole = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                new ArrayList<>(List.of(RolesEnum.CLIENT))
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountWithoutAdminRole));
+        when(accountRepository.saveAndFlush(accountWithoutAdminRole)).thenReturn(accountWithoutAdminRole);
 
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
-        when(accountRepository.saveAndFlush(account)).thenReturn(account);
+        underTest.addRole(SIMPLE_UUID, RolesEnum.ADMIN);
 
-        underTest.addRole(ID, RolesEnum.ADMIN);
-
-        assertEquals(2, account.getRoles().size());
-        Optional<Role> addedRole = account.getRoles().stream().filter(r -> r.getRole() == RolesEnum.ADMIN).findFirst();
+        assertEquals(2, accountWithoutAdminRole.getRoles().size());
+        Optional<Role> addedRole = accountWithoutAdminRole.getRoles().stream()
+                .filter(r -> r.getRole() == RolesEnum.ADMIN).findFirst();
         assertTrue(addedRole.isPresent());
     }
 
     @Test
     void activeArchivedRole() {
-        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
-        var adminRole = new Admin(account);
-        adminRole.setActive(false);
-        account.addRole(adminRole);
+        var accountWithClientRoleToArchive = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                new ArrayList<>(List.of(RolesEnum.CLIENT, RolesEnum.ADMIN))
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountWithClientRoleToArchive));
+        when(accountRepository.saveAndFlush(accountWithClientRoleToArchive)).thenReturn(accountWithClientRoleToArchive);
+        accountWithClientRoleToArchive.getRoles().stream()
+                .filter(r -> r.getRole() == RolesEnum.ADMIN)
+                .findFirst()
+                .ifPresent(role -> role.setActive(false));
 
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
-        when(accountRepository.saveAndFlush(account)).thenReturn(account);
+        underTest.addRole(SIMPLE_UUID, RolesEnum.ADMIN);
 
-
-        underTest.addRole(ID, RolesEnum.ADMIN);
-
-        assertEquals(2, account.getRoles().size());
-        Optional<Role> addedRole = account.getRoles().stream()
-                .filter(r -> r.getRole() == RolesEnum.ADMIN && !r.isActive())
+        assertEquals(2, accountWithClientRoleToArchive.getRoles().size());
+        Optional<Role> addedRole = accountWithClientRoleToArchive.getRoles().stream()
+                .filter(r -> r.getRole() == RolesEnum.ADMIN && r.isActive())
                 .findFirst();
         assertTrue(addedRole.isPresent());
     }
 
     @Test
     void addRoleToAccountThrowsAccountNotFoundException() {
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.empty());
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.empty());
 
-        var thrownException = assertThrows(AccountNotFoundException.class, () -> {
-            underTest.addRole(ID, RolesEnum.CLIENT);
-        });
+        var thrownException = assertThrows(AccountNotFoundException.class, () ->
+            underTest.addRole(SIMPLE_UUID, RolesEnum.CLIENT)
+        );
 
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, thrownException.getMessage());
     }
 
     @Test
     void addRoleToAccountThrowsAccountRoleAlreadyOwnedException() {
-        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
+        var accountWithActiveClientRole = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                new ArrayList<>(List.of(RolesEnum.CLIENT))
+        );
 
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountWithActiveClientRole));
 
-        var thrownException = assertThrows(RoleAlreadyOwnedException.class, () -> {
-            underTest.addRole(ID, RolesEnum.CLIENT);
-        });
+        var thrownException = assertThrows(RoleAlreadyOwnedException.class, () ->
+            underTest.addRole(SIMPLE_UUID, RolesEnum.CLIENT)
+        );
 
         assertEquals(ExceptionMessages.ROLE_ALREADY_OWNED, thrownException.getMessage());
     }
 
     @Test
-    void archiveRoleTest() {
-        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
-        var landlordRole = new Landlord(account);
-        account.addRole(landlordRole);
+    void archiveRoleTestWorksProperly() {
+        var accountWithClientRoleToBeArchived = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                new ArrayList<>(List.of(RolesEnum.CLIENT, RolesEnum.LANDLORD))
+        );
 
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
-        when(accountRepository.saveAndFlush(account)).thenReturn(account);
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountWithClientRoleToBeArchived));
+        when(accountRepository.saveAndFlush(accountWithClientRoleToBeArchived)).thenReturn(accountWithClientRoleToBeArchived);
 
-        underTest.archiveRole(ID, RolesEnum.CLIENT);
+        underTest.archiveRole(SIMPLE_UUID, RolesEnum.CLIENT);
 
-        Optional<Role> archivedRole = account.getRoles().stream()
+        Optional<Role> archivedRole = accountWithClientRoleToBeArchived.getRoles().stream()
                 .filter(r -> !r.isActive() && r.getRole() == RolesEnum.CLIENT)
                 .findFirst();
         assertTrue(archivedRole.isPresent());
@@ -160,88 +202,167 @@ class AccountServiceTest {
 
     @Test
     void archiveRoleThrowsAccountNotFoundException() {
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.empty());
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.empty());
 
-        var thrownException = assertThrows(AccountNotFoundException.class, () -> {
-            underTest.archiveRole(ID, RolesEnum.CLIENT);
-        });
+        var thrownException = assertThrows(AccountNotFoundException.class, () ->
+            underTest.archiveRole(SIMPLE_UUID, RolesEnum.CLIENT)
+        );
 
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, thrownException.getMessage());
     }
 
     @Test
-    void archiveRoleThrowsRoleIsNotOwnedException() {
-        var account = AccountModuleTestUtility.createNotVerifiedAccount();
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
+    void archiveRoleThrowsRoleIsNotOwnedExceptionWhenAccountHasNotSpecifiedRole() {
+        var accountWithClientRoleOnly = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                List.of(RolesEnum.CLIENT)
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountWithClientRoleOnly));
 
-        var thrownException = assertThrows(RoleIsNotOwnedException.class, () -> {
-            underTest.archiveRole(ID, RolesEnum.ADMIN);
-        });
+        var thrownException = assertThrows(RoleIsNotOwnedException.class, () ->
+            underTest.archiveRole(SIMPLE_UUID, RolesEnum.ADMIN)
+        );
 
         assertEquals(ExceptionMessages.ROlE_IS_NOT_OWNED, thrownException.getMessage());
     }
 
     @Test
-    void archiveRoleThrowsAccountDoesNotOweAnyRoleException() {
-        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
+    void archiveRoleThrowsRoleIsNotOwnedExceptionWhenSpecifiedRoleIsAlreadyArchived() {
+        var accountWithAdminRoleArchived = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                List.of(RolesEnum.CLIENT, RolesEnum.ADMIN)
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountWithAdminRoleArchived));
+        underTest.archiveRole(SIMPLE_UUID, RolesEnum.ADMIN);
 
-        var thrownException = assertThrows(AccountDoesNotOweAnyRoleException.class, () -> {
-            underTest.archiveRole(ID, RolesEnum.CLIENT);
-        });
+        var exceptionThrown = assertThrows(RoleIsNotOwnedException.class, () ->
+                underTest.archiveRole(SIMPLE_UUID, RolesEnum.ADMIN)
+        );
+
+        assertEquals(ExceptionMessages.ROlE_IS_NOT_OWNED, exceptionThrown.getMessage());
+    }
+
+    @Test
+    void archiveRoleThrowsAccountDoesNotOweAnyRoleException() {
+        var accountWithClientRole = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                List.of(RolesEnum.CLIENT)
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountWithClientRole));
+
+        var thrownException = assertThrows(AccountDoesNotOweAnyRoleException.class, () ->
+            underTest.archiveRole(SIMPLE_UUID, RolesEnum.CLIENT)
+        );
 
         assertEquals(ExceptionMessages.ACCOUNT_DOES_NOT_OWE_ANY_ROLE, thrownException.getMessage());
     }
 
     @Test
     void blockAccountWorksProperlyTest() {
-        var account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
-        when(accountRepository.findById(eq(ID))).thenReturn(Optional.of(account));
-        when(accountRepository.saveAndFlush(account)).thenReturn(account);
+        var accountToBeBlocked = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,List.of()
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountToBeBlocked));
+        when(accountRepository.saveAndFlush(accountToBeBlocked)).thenReturn(accountToBeBlocked);
 
-        underTest.blockAccount(ID);
+        underTest.blockAccount(SIMPLE_UUID);
 
-        assertFalse(account.isActive());
+        assertFalse(accountToBeBlocked.isActive());
     }
 
     @Test
     void blockAccountThrowsAccountNotFoundExceptionWhenAccountDoesNotExistTest() {
-        when(accountRepository.findById(ID)).thenReturn(Optional.empty());
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.empty());
 
-        var thrownException = assertThrows(AccountNotFoundException.class, () -> {
-            underTest.blockAccount(ID);
-        });
+        var thrownException = assertThrows(AccountNotFoundException.class, () ->
+            underTest.blockAccount(SIMPLE_UUID)
+        );
 
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, thrownException.getMessage());
     }
 
     @Test
+    void blockAccountThrowsAccountIsAlreadyBlockedException() {
+        var blockedAccount = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                false,
+                List.of(RolesEnum.CLIENT)
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(blockedAccount));
+
+        var exceptionThrown = assertThrows(AccountAlreadyBlockedException.class, () ->
+                underTest.blockAccount(SIMPLE_UUID)
+        );
+
+        assertEquals(ExceptionMessages.ACCOUNT_ALREADY_BLOCKED, exceptionThrown.getMessage());
+    }
+
+    @Test
     void activateAccountWorksProperlyTest() {
-        var account = createNotVerifiedAccountWithClientRole();
-        account.setActive(false);
-        when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
-        when(accountRepository.saveAndFlush(account)).thenReturn(account);
+        var accountToBeActivated = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                false,
+                List.of(RolesEnum.CLIENT)
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountToBeActivated));
+        when(accountRepository.saveAndFlush(accountToBeActivated)).thenReturn(accountToBeActivated);
 
-        underTest.activateAccount(ID);
+        underTest.activateAccount(SIMPLE_UUID);
 
-        assertTrue(account.isActive());
+        assertTrue(accountToBeActivated.isActive());
     }
 
     @Test
     void activateAccountThrowsAccountNotFoundExceptionWhenAccountDoesNotExistTest() {
-        when(accountRepository.findById(ID)).thenReturn(Optional.empty());
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.empty());
 
-        var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> underTest.activateAccount(ID));
+        var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> underTest.activateAccount(SIMPLE_UUID));
 
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, exceptionThrown.getMessage());
     }
 
     @Test
     void activateAccountThrowsAccountAlreadyActiveWhenAccountIsAlreadyActive() {
-        var account = createNotVerifiedAccountWithClientRole();
-        when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
+        var activeAccount = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                List.of(RolesEnum.CLIENT)
+                );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(activeAccount));
 
-        var exceptionThrown = assertThrows(AccountAlreadyActiveException.class, () -> underTest.activateAccount(ID));
+        var exceptionThrown = assertThrows(AccountAlreadyActiveException.class, () -> underTest.activateAccount(SIMPLE_UUID));
 
         assertEquals(ExceptionMessages.ACCOUNT_ALREADY_ACTIVE, exceptionThrown.getMessage());
     }
@@ -249,45 +370,59 @@ class AccountServiceTest {
     @Test
     void getAllAccountsMatchingPhrasesWithPaginationReturnNotEmptyPage() {
         List<Account> accountsOnPage = new ArrayList<>();
-        var account1 = createNotVerifiedAccount("a_username_no_1", "email.no1@example.com",
-                "first_name_no_1", "last_name_no_1");
-        var account2 = createNotVerifiedAccount("b_username_no_2", "email.no2@example.com",
-                "first_name_no_2", "last_name_no_2");
-        accountsOnPage.add(account1);
-        accountsOnPage.add(account2);
+        var accountClient1 = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                List.of(RolesEnum.CLIENT)
+        );
+        var accountClient2 = createAccount(
+                FIRST_NAME_NO_2,
+                LAST_NAME_NO_2,
+                USERNAME_NO_2,
+                EMAIL_NO_2,
+                true,
+                true,
+                List.of(RolesEnum.CLIENT)
+        );
+        accountsOnPage.add(accountClient1);
+        accountsOnPage.add(accountClient2);
 
         Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "username");
         Page<Account> accounts = new PageImpl<>(accountsOnPage, pageable, 2);
         when(accountRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(accounts);
         List<String> phrases = new ArrayList<>();
-        phrases.add("a_username_no_1");
-        phrases.add("b_username_no_2");
+        phrases.add(LAST_NAME_NO_1);
+        phrases.add(LAST_NAME_NO_2);
 
         PagingResult<AccountOnPageDTO> result = underTest.getAllAccountsMatchingPhrasesWithPagination(0,
-                2, Sort.Direction.ASC, "username", phrases);
+                2, Sort.Direction.ASC, USERNAME_FIELD, phrases);
 
         assertNotNull(result);
         assertNotNull(result.getContent());
         assertEquals(2, result.getContent().size());
-        assertEquals("a_username_no_1", result.getContent().getFirst().getUsername());
-        assertEquals("first_name_no_1", result.getContent().getFirst().getFirstName());
-        assertEquals("last_name_no_1", result.getContent().getFirst().getLastName());
+        assertEquals(USERNAME_NO_1, result.getContent().getFirst().getUsername());
+        assertEquals(FIRST_NAME_NO_1, result.getContent().getFirst().getFirstName());
+        assertEquals(LAST_NAME_NO_1, result.getContent().getFirst().getLastName());
 
-        assertEquals("b_username_no_2", result.getContent().getLast().getUsername());
-        assertEquals("first_name_no_2", result.getContent().getLast().getFirstName());
-        assertEquals("last_name_no_2", result.getContent().getLast().getLastName());
+        assertEquals(USERNAME_NO_2, result.getContent().getLast().getUsername());
+        assertEquals(FIRST_NAME_NO_2, result.getContent().getLast().getFirstName());
+        assertEquals(LAST_NAME_NO_2, result.getContent().getLast().getLastName());
     }
 
     @Test
     void getAllAccountsMatchingPhrasesWithPaginationReturnEmptyPage() {
         List<Account> accountsOnPage = new ArrayList<>();
-        Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "username");
+        Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, USERNAME_FIELD);
         Page<Account> accounts = new PageImpl<>(accountsOnPage, pageable, 0);
         when(accountRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(accounts);
         List<String> phrases = new ArrayList<>();
 
         PagingResult<AccountOnPageDTO> result = underTest.getAllAccountsMatchingPhrasesWithPagination(0,
-                2, Sort.Direction.ASC, "username", phrases);
+                2, Sort.Direction.ASC, USERNAME_FIELD, phrases);
 
         assertNotNull(result);
         assertNotNull(result.getContent());
@@ -296,66 +431,102 @@ class AccountServiceTest {
 
     @Test
     void getAccountByIdReturnAccountDTO() {
-        Account account = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
-        Landlord landlordRole = new Landlord(account);
-        account.addRole(landlordRole);
-        when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
+        Account account = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                List.of(RolesEnum.CLIENT)
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(account));
 
-        AccountDTO accountDTO = underTest.getAccountById(ID);
+        AccountDTO accountDTO = underTest.getAccountById(SIMPLE_UUID);
 
         assertNotNull(accountDTO);
+        assertEquals(FIRST_NAME_NO_1, accountDTO.getFirstName());
+        assertEquals(LAST_NAME_NO_1, accountDTO.getLastName());
+        assertEquals(USERNAME_NO_1, accountDTO.getUsername());
+        assertEquals(EMAIL_NO_1, accountDTO.getEmail());
+        assertTrue(accountDTO.isVerified());
+        assertTrue(accountDTO.isActive());
+        assertEquals(1, accountDTO.getRoles().size());
+        assertEquals(RolesEnum.CLIENT.name(), accountDTO.getRoles().getFirst());
     }
 
     @Test
     void getAccountByIdThrowsAccountNotFoundException() {
-        when(accountRepository.findById(ID)).thenReturn(Optional.empty());
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.empty());
 
-        var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> underTest.getAccountById(ID));
+        var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> underTest.getAccountById(SIMPLE_UUID));
 
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, exceptionThrown.getMessage());
     }
 
     @Test
     void changeMyPasswordSuccessfully() {
-        var accountToBeModified = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
-        when(accountRepository.findById(ID)).thenReturn(Optional.of(accountToBeModified));
+        var accountToBeModified = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                List.of(RolesEnum.CLIENT)
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountToBeModified));
 
-        underTest.changeMyPassword(ID, "newPassword_xyz");
+        underTest.changeMyPassword(SIMPLE_UUID, NEW_PASSWORD);
 
-        assertEquals("newPassword_xyz", accountToBeModified.getPassword());
+        assertEquals(NEW_PASSWORD, accountToBeModified.getPassword());
     }
 
     @Test
     void changeMyPasswordThrowsAccountNotFoundException() {
-        when(accountRepository.findById(ID)).thenThrow(new AccountNotFoundException());
+        when(accountRepository.findById(SIMPLE_UUID)).thenThrow(new AccountNotFoundException());
 
-        var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> underTest.changeMyPassword(ID, "newPassword_xyz"));
+        var exceptionThrown = assertThrows(AccountNotFoundException.class, () ->
+                underTest.changeMyPassword(SIMPLE_UUID, NEW_PASSWORD));
 
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, exceptionThrown.getMessage());
     }
 
     @Test
     void editMyAccountChangeFirstNameAndLastNameSuccessfully() {
-        var accountToBeModified = AccountModuleTestUtility.createNotVerifiedAccountWithClientRole();
-        when(accountRepository.findById(ID)).thenReturn(Optional.of(accountToBeModified));
+        var accountToBeModified = createAccount(
+                FIRST_NAME_NO_1,
+                LAST_NAME_NO_1,
+                USERNAME_NO_1,
+                EMAIL_NO_1,
+                true,
+                true,
+                List.of(RolesEnum.CLIENT)
+        );
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.of(accountToBeModified));
         when(accountRepository.saveAndFlush(accountToBeModified)).thenReturn(accountToBeModified);
 
-        var modifiedAccountDto = underTest.editMyAccount(ID, "newFirstName_xyz", "newLastName_xyz");
+        var modifiedAccountDto = underTest.editMyAccount(
+                SIMPLE_UUID,
+                FIRST_NAME_NO_5,
+                LAST_NAME_NO_5
+        );
 
-        assertEquals("newFirstName_xyz", accountToBeModified.getFirstName());
-        assertEquals("newLastName_xyz", accountToBeModified.getLastName());
         assertNotNull(modifiedAccountDto);
-        assertEquals("newFirstName_xyz", modifiedAccountDto.getFirstName());
-        assertEquals("newLastName_xyz", modifiedAccountDto.getLastName());
+        assertEquals(FIRST_NAME_NO_5, accountToBeModified.getFirstName());
+        assertEquals(LAST_NAME_NO_5, accountToBeModified.getLastName());
     }
 
     @Test
     void editMyAccountThrowsAccountNotFoundException() {
-        when(accountRepository.findById(ID)).thenReturn(Optional.empty());
+        when(accountRepository.findById(SIMPLE_UUID)).thenReturn(Optional.empty());
 
-        var exceptionThrown = assertThrows(AccountNotFoundException.class, () -> {
-            underTest.editMyAccount(ID, "newFirstName_xyz", "newLastName_xyz");
-        });
+        var exceptionThrown = assertThrows(AccountNotFoundException.class, () ->
+            underTest.editMyAccount(
+                    SIMPLE_UUID,
+                    FIRST_NAME_NO_5,
+                    LAST_NAME_NO_5)
+        );
 
         assertEquals(ExceptionMessages.ACCOUNT_NOT_FOUND, exceptionThrown.getMessage());
     }

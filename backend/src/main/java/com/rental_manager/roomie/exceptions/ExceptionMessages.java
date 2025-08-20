@@ -22,11 +22,12 @@ public class ExceptionMessages {
     public static final String EMAIL_NOT_VALID = "account.email.not.valid";
     public static final String PASSWORD_LENGTH_NOT_VALID = "account.password.length.not.valid";
 
+    public static final String ROLE_DOES_NOT_EXIST = "specified.role.does.not.exist";
+
     public static final String PASSWORD_DOES_NOT_MATCH = "repeat.password.does.not.match";
 
     //BUSINESS LOGIC EXCEPTION
     //ROLES
-    public static final String SPECIFIED_ROLE_DOES_NOT_EXIST = "specified.role.does.not.exist";
     public static final String ROLE_ALREADY_OWNED = "role.is.already.owned";
     public static final String ROlE_IS_NOT_OWNED = "role.is.not.owned";
     public static final String ACCOUNT_DOES_NOT_OWE_ANY_ROLE = "account.does.not.owe.any.role";

@@ -4,6 +4,7 @@ import com.rental_manager.roomie.account_module.repositories.AccountRepository;
 import com.rental_manager.roomie.account_module.repositories.ResetPasswordTokenRepository;
 import com.rental_manager.roomie.account_module.services.interfaces.IResetPasswordService;
 import com.rental_manager.roomie.config.Constraints;
+import com.rental_manager.roomie.config.database.TransactionManagersIds;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.ResetPasswordToken;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
@@ -36,7 +37,7 @@ public class ResetPasswordService implements IResetPasswordService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public void generateResetPasswordToken(String email) throws AccountNotFoundException {
         //check if account with entered email exist
         Account account = accountRepository.findByEmail(email).orElseThrow(AccountNotFoundException::new);
@@ -50,7 +51,7 @@ public class ResetPasswordService implements IResetPasswordService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public void resetPassword(String tokenValue, String newPassword, String repeatNewPassword) throws
             ResetPasswordTokenDoesNotMatchException {
         ResetPasswordToken resetPasswordToken = resetPasswordTokenRepository.findByTokenValueAndExpirationDateAfter(

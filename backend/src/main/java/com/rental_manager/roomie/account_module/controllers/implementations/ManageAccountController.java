@@ -15,6 +15,7 @@ import com.rental_manager.roomie.exceptions.business_logic_exceptions.RoleIsNotO
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
 import com.rental_manager.roomie.utils.searching_with_pagination.PagingRequest;
 import com.rental_manager.roomie.utils.searching_with_pagination.PagingResult;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,20 +34,20 @@ public class ManageAccountController implements IManageAccountController {
 
     @PostMapping("/{accountId}/roles")
     @Override
-    public ResponseEntity<Void> addRole(@PathVariable UUID accountId, @RequestBody ChangeRoleDTO changeRoleDTO) throws
-            AccountNotFoundException, RoleAlreadyOwnedException {
-        RolesEnum roleToBeAdded = changeRoleDTO.getRole();
+    public ResponseEntity<Void> addRole(@PathVariable UUID accountId, @RequestBody @Valid ChangeRoleDTO changeRoleDTO)
+            throws AccountNotFoundException, RoleAlreadyOwnedException {
+        RolesEnum roleToBeAdded = RolesEnum.valueOf(changeRoleDTO.getRole());
         accountService.addRole(accountId, roleToBeAdded);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{accountId}/roles")
     @Override
-    public ResponseEntity<Void> archiveRole(@PathVariable UUID accountId, @RequestBody ChangeRoleDTO changeRoleDTO)
+    public ResponseEntity<Void> archiveRole(@PathVariable UUID accountId, @RequestBody @Valid ChangeRoleDTO changeRoleDTO)
             throws AccountNotFoundException, RoleIsNotOwnedException, AccountDoesNotOweAnyRoleException {
-        RolesEnum roleToBeArchived = changeRoleDTO.getRole();
+        RolesEnum roleToBeArchived = RolesEnum.valueOf(changeRoleDTO.getRole());
         accountService.archiveRole(accountId, roleToBeArchived);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/{accountId}/block")

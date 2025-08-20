@@ -3,6 +3,7 @@ package com.rental_manager.roomie.account_module.services.implementations;
 import com.rental_manager.roomie.account_module.repositories.AccountRepository;
 import com.rental_manager.roomie.account_module.repositories.VerificationTokenRepository;
 import com.rental_manager.roomie.account_module.services.interfaces.IAccountVerificationService;
+import com.rental_manager.roomie.config.database.TransactionManagersIds;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.VerificationToken;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.VerificationTokenDoesNotMatchException;
@@ -25,7 +26,7 @@ public class AccountVerificationService implements IAccountVerificationService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = "accountModuleTransactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     public void verifyAccountUsingVerificationToken(String verificationTokenValue)
             throws VerificationTokenDoesNotMatchException {
         VerificationToken verificationToken = verificationTokenRepository

@@ -21,7 +21,8 @@ public interface IManageAccountController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Role successfully added"),
             @ApiResponse(responseCode = "404", description = "Account does not exist"),
-            @ApiResponse(responseCode = "409", description = "User already has this role")
+            @ApiResponse(responseCode = "409", description = "User already has this role"),
+            @ApiResponse(responseCode = "422", description = "Specified role does not exist")
     })
     ResponseEntity<Void> addRole(UUID accountId, ChangeRoleDTO changeRoleDTO) throws AccountNotFoundException,
             RoleAlreadyOwnedException;
@@ -30,7 +31,8 @@ public interface IManageAccountController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Role successfully archived"),
             @ApiResponse(responseCode = "404", description = "Account does not exist"),
-            @ApiResponse(responseCode = "409", description = "User does not have specified role")
+            @ApiResponse(responseCode = "409", description = "User does not have specified role"),
+            @ApiResponse(responseCode = "422", description = "Specified role does not exist")
     })
     ResponseEntity<Void> archiveRole(UUID accountId, ChangeRoleDTO changeRoleDTO) throws AccountNotFoundException,
             RoleIsNotOwnedException, AccountDoesNotOweAnyRoleException;
