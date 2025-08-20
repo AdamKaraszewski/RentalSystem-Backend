@@ -3,7 +3,6 @@ package com.rental_manager.roomie.account_module.controllers.implementations;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rental_manager.roomie.account_module.services.implementations.AccountService;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -14,7 +13,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import static com.rental_manager.roomie.AccountModuleTestUtility.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,26 +34,6 @@ class RegisterAccountControllerTest {
     private AccountService accountService;
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private static final Random random = new Random();
-
-    private static final String TO_SHORT_FIRST_NAME = "";
-    private static final String TO_LONG_FIRST_NAME = RandomStringUtils.random(33, 'a', 'z' + 1,
-            true, false, null, random);
-
-    private static final String TO_SHORT_LAST_NAME = "";
-    private static final String TO_LONG_LAST_NAME = RandomStringUtils.random(33, 'a', 'z' + 1,
-            true, false, null, random);
-
-    private static final String TO_SHORT_USERNAME = "xy";
-    private static final String TO_LONG_USERNAME = RandomStringUtils.random(33, 'a', 'z' + 1,
-            true, false, null, random);
-
-    private static final String INVALID_EMAIL = "simple.mail";
-
-    private static final String TO_SHORT_PASSWORD = "pass";
-    private static final String TO_LONG_PASSWORD = RandomStringUtils.random(65, '0', 'z' + 1,
-            true, true, null, random);
-
 
     @Test
     void registerClientReturnCreatedStausCodeTest() throws Exception {

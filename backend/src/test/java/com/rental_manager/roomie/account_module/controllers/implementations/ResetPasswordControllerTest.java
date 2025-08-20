@@ -32,8 +32,6 @@ class ResetPasswordControllerTest {
     private static final String GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT = "/reset-password";
     private static final String RESET_PASSWORD_ENDPOINT = "/reset-password/" + RESET_PASSWORD_TOKEN_VALUE;
 
-    private static final String INVALID_EMAIL = "invalidEmail";
-
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
@@ -117,10 +115,9 @@ class ResetPasswordControllerTest {
     @Test
     void resetPasswordReturnOkStatusCodeTest() throws Exception {
         Map<String, String> data = new HashMap<>();
-        data.put(NEW_PASSWORD_FIELD, PASSWORD);
-        data.put(REPEAT_NEW_PASSWORD_FIELD, PASSWORD);
+        data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writeValueAsString(data);
-        doNothing().when(resetPasswordService).resetPassword(any(), any(), any());
+        doNothing().when(resetPasswordService).resetPassword(any(), any());
 
         mockMvc.perform(
                 post(RESET_PASSWORD_ENDPOINT)
@@ -131,12 +128,71 @@ class ResetPasswordControllerTest {
     }
 
     @Test
+    void resetPasswordThrowsValidationExceptionWhenPasswordIsNull() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(PASSWORD_FILED, null);
+        String requestBody = mapper.writeValueAsString(data);
+        doNothing().when(resetPasswordService).resetPassword(any(), any());
+
+        mockMvc.perform(
+                post(RESET_PASSWORD_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        )
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value(422))
+                .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors", hasSize(1)))
+                .andExpect(jsonPath("$.validationErrors[0].fieldName").value(PASSWORD_FILED))
+                .andExpect(jsonPath("$.validationErrors[0].message").value(ExceptionMessages.FIELD_NULL_VALUE));
+    }
+
+    @Test
+    void resetPasswordThrowsValidationExceptionWhenPasswordIsToShort() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(PASSWORD_FILED, TO_SHORT_PASSWORD);
+        String requestBody = mapper.writeValueAsString(data);
+        doNothing().when(resetPasswordService).resetPassword(any(), any());
+
+        mockMvc.perform(
+                post(RESET_PASSWORD_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        )
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value(422))
+                .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors", hasSize(1)))
+                .andExpect(jsonPath("$.validationErrors[0].fieldName").value(PASSWORD_FILED))
+                .andExpect(jsonPath("$.validationErrors[0].message").value(ExceptionMessages.PASSWORD_LENGTH_NOT_VALID));
+    }
+
+    @Test
+    void resetPasswordThrowsValidationExceptionWhenPasswordIsToLong() throws Exception {
+        Map<String, String> data = new HashMap<>();
+        data.put(PASSWORD_FILED, TO_LONG_PASSWORD);
+        String requestBody = mapper.writeValueAsString(data);
+        doNothing().when(resetPasswordService).resetPassword(any(), any());
+
+        mockMvc.perform(
+                post(RESET_PASSWORD_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        )
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value(422))
+                .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors", hasSize(1)))
+                .andExpect(jsonPath("$.validationErrors[0].fieldName").value(PASSWORD_FILED))
+                .andExpect(jsonPath("$.validationErrors[0].message").value(ExceptionMessages.PASSWORD_LENGTH_NOT_VALID));
+    }
+
+    @Test
     void resetPasswordReturnNotFoundStatusCodeAndResourceNotFoundDtoWhenSpecifiedResetTokenValueDoesNotExist() throws Exception {
         Map<String, String> data = new HashMap<>();
-        data.put(NEW_PASSWORD_FIELD, PASSWORD);
-        data.put(REPEAT_NEW_PASSWORD_FIELD, PASSWORD);
+        data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writeValueAsString(data);
-        doThrow(new ResetPasswordTokenDoesNotMatchException()).when(resetPasswordService).resetPassword(any(), any(), any());
+        doThrow(new ResetPasswordTokenDoesNotMatchException()).when(resetPasswordService).resetPassword(any(), any());
 
         mockMvc.perform(
                 post(RESET_PASSWORD_ENDPOINT)

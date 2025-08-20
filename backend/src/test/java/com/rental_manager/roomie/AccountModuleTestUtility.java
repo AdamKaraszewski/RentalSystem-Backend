@@ -26,10 +26,6 @@ public class AccountModuleTestUtility {
     public static final String PASSWORD_FILED = "password";
     public static final String ROLE_FIELD = "role";
 
-    //ResetPasswordDto fields
-    public static final String NEW_PASSWORD_FIELD = "newPassword";
-    public static final String REPEAT_NEW_PASSWORD_FIELD = "repeatNewPassword";
-
     public static final UUID SIMPLE_UUID = UUID.randomUUID();
 
     public static final String USERNAME_NO_1 = "a_username_no_1";
@@ -71,15 +67,32 @@ public class AccountModuleTestUtility {
             PASSWORD
     );
 
-
     private static final Random RANDOM_GENERATOR = new SecureRandom();
     public static final String VERIFICATION_TOKEN_VALUE = RandomStringUtils.random(
             Constraints.EMAIL_VERIFICATION_TOKEN_LENGTH, '0', 'z' + 1, true, true, null, RANDOM_GENERATOR);
     public static final String RESET_PASSWORD_TOKEN_VALUE = RandomStringUtils.random(
             Constraints.RESET_PASSWORD_TOKEN_LENGTH, '0', 'z' + 1, true, true, null, RANDOM_GENERATOR);
     public static final long VERIFICATION_TOKEN_LIFE_TIME = 1440; //minutes
-    public static final long REST_PASSWORD_TOKEN_LIFE_TIME = 15; //minutes
+    public static final long REST_PASSWORD_TOKEN_LIFE_TIME = 15;
 
+    //VALIDATION
+    public static final String TO_SHORT_FIRST_NAME = "";
+    public static final String TO_LONG_FIRST_NAME = RandomStringUtils.random(33, 'a', 'z' + 1,
+            true, false, null, RANDOM_GENERATOR);
+
+    public static final String TO_SHORT_LAST_NAME = "";
+    public static final String TO_LONG_LAST_NAME = RandomStringUtils.random(33, 'a', 'z' + 1,
+            true, false, null, RANDOM_GENERATOR);
+
+    public static final String TO_SHORT_USERNAME = "xy";
+    public static final String TO_LONG_USERNAME = RandomStringUtils.random(33, 'a', 'z' + 1,
+            true, false, null, RANDOM_GENERATOR);
+
+    public static final String INVALID_EMAIL = "simple.mail";
+
+    public static final String TO_SHORT_PASSWORD = "pass";
+    public static final String TO_LONG_PASSWORD = RandomStringUtils.random(65, '0', 'z' + 1,
+            true, true, null, RANDOM_GENERATOR);
 
     private AccountModuleTestUtility() {}
 

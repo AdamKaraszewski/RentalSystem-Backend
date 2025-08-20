@@ -69,7 +69,7 @@ class ResetPasswordServiceTest {
         when(accountRepository.saveAndFlush(accountWithPasswordToBeRest)).thenReturn(accountWithPasswordToBeRest);
         doNothing().when(resetPasswordTokenRepository).delete(resetPasswordToken);
 
-        underTest.resetPassword(RESET_PASSWORD_TOKEN_VALUE, NEW_PASSWORD, NEW_PASSWORD);
+        underTest.resetPassword(RESET_PASSWORD_TOKEN_VALUE, NEW_PASSWORD);
 
         assertEquals(NEW_PASSWORD, accountWithPasswordToBeRest.getPassword());
     }
@@ -79,7 +79,7 @@ class ResetPasswordServiceTest {
         when(resetPasswordTokenRepository.findByTokenValueAndExpirationDateAfter(eq(RESET_PASSWORD_TOKEN_VALUE), any(LocalDateTime.class))).thenReturn(Optional.empty());
 
         var exceptionThrown = assertThrows(ResetPasswordTokenDoesNotMatchException.class, () ->
-            underTest.resetPassword(RESET_PASSWORD_TOKEN_VALUE, NEW_PASSWORD, NEW_PASSWORD)
+            underTest.resetPassword(RESET_PASSWORD_TOKEN_VALUE, NEW_PASSWORD)
         );
 
         assertEquals(ExceptionMessages.RESET_PASSWORD_TOKEN_DOES_NOT_MATCH, exceptionThrown.getMessage());

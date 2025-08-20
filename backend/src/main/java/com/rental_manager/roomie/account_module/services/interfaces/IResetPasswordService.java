@@ -7,6 +7,6 @@ public interface IResetPasswordService {
 
     void generateResetPasswordToken(String email) throws AccountNotFoundException;
 
-    void resetPassword(String tokenValue, String newPassword, String repeatNewPassword)
+    void resetPassword(String tokenValue, String newPassword)
             throws ResetPasswordTokenDoesNotMatchException;
 }

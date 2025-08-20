@@ -52,7 +52,7 @@ public class ResetPasswordService implements IResetPasswordService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
-    public void resetPassword(String tokenValue, String newPassword, String repeatNewPassword) throws
+    public void resetPassword(String tokenValue, String newPassword) throws
             ResetPasswordTokenDoesNotMatchException {
         ResetPasswordToken resetPasswordToken = resetPasswordTokenRepository.findByTokenValueAndExpirationDateAfter(
                 tokenValue, LocalDateTime.now())

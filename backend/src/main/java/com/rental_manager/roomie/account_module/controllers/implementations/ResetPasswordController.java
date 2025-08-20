@@ -32,10 +32,9 @@ public class ResetPasswordController implements IResetPasswordController {
 
     @Override
     @PostMapping("/{token}")
-    public ResponseEntity<Void> resetPassword(@PathVariable String token, @RequestBody ResetPasswordDTO resetPasswordDTO)
+    public ResponseEntity<Void> resetPassword(@PathVariable String token, @RequestBody @Valid ResetPasswordDTO resetPasswordDTO)
             throws ResetPasswordTokenDoesNotMatchException {
-        resetPasswordService.resetPassword(token, resetPasswordDTO.getNewPassword(),
-                resetPasswordDTO.getRepeatNewPassword());
+        resetPasswordService.resetPassword(token, resetPasswordDTO.getPassword());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
