@@ -42,6 +42,9 @@ public class InitDataSourceConfig {
     @Value("${datasource.database-init.init-data-script}")
     private String initDataSql;
 
+    @Value("${datasource.database-init.show-sql}")
+    private boolean showSql;
+
     @Primary
     @Bean(name = "initDataSource")
     public DataSource initDataSource() {
@@ -63,7 +66,7 @@ public class InitDataSourceConfig {
                 .build();
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        vendorAdapter.setShowSql(true);
+        vendorAdapter.setShowSql(showSql);
         em.setJpaVendorAdapter(vendorAdapter);
 
         Properties properties = new Properties();

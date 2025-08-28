@@ -2,12 +2,14 @@ package com.rental_manager.roomie.account_module.controllers.implementations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rental_manager.roomie.account_module.services.implementations.ResetPasswordService;
+import com.rental_manager.roomie.config.security.SecurityConfig;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.AccountNotFoundException;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.ResetPasswordTokenDoesNotMatchException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -26,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ResetPasswordController.class)
+@Import(SecurityConfig.class)
 @ActiveProfiles("test")
 class ResetPasswordControllerTest {
 

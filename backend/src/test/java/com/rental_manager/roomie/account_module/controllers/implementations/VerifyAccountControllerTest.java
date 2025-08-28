@@ -1,11 +1,13 @@
 package com.rental_manager.roomie.account_module.controllers.implementations;
 
 import com.rental_manager.roomie.account_module.services.implementations.AccountVerificationService;
+import com.rental_manager.roomie.config.security.SecurityConfig;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
 import com.rental_manager.roomie.exceptions.resource_not_found_exceptions.VerificationTokenDoesNotMatchException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -20,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(VerifyAccountController.class)
+@Import(SecurityConfig.class)
 @ActiveProfiles("test")
 class VerifyAccountControllerTest {
 

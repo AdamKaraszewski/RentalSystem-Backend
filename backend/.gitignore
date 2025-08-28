@@ -1,5 +1,6 @@
 HELP.md
 environment.ps1
+.env
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
