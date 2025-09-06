@@ -45,8 +45,10 @@ public class InitDataSourceConfig {
     @Value("${datasource.database-init.show-sql}")
     private boolean showSql;
 
+    public static final String INIT_DS_NAME = "initDataSource";
+
     @Primary
-    @Bean(name = "initDataSource")
+    @Bean(name = INIT_DS_NAME)
     public DataSource initDataSource() {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);
@@ -59,7 +61,7 @@ public class InitDataSourceConfig {
     @Primary
     @Bean(name = "initEntityMangerFactory")
     public LocalContainerEntityManagerFactoryBean initEntityManagerFactory(
-            EntityManagerFactoryBuilder builder, @Qualifier("initDataSource") DataSource dataSource) {
+            EntityManagerFactoryBuilder builder, @Qualifier(INIT_DS_NAME) DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean em = builder.dataSource(dataSource)
                 .persistenceUnit("initPU")
                 .packages("com.rental_manager.roomie.entities")
@@ -77,7 +79,7 @@ public class InitDataSourceConfig {
     }
 
     @Primary
-    @Bean(name = "initTransactionManager")
+    @Bean(name = TransactionManagersIds.INIT_TX_MANAGER)
     public PlatformTransactionManager initTransactionManager(
             @Qualifier("initEntityMangerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);

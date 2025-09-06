@@ -4,9 +4,7 @@ import com.rental_manager.roomie.IntegrationTestsBase;
 import com.rental_manager.roomie.config.database.TransactionManagersIds;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,9 +38,7 @@ class AccountRepositoryIntegrationTest extends IntegrationTestsBase {
     private final Account accountNo6 = createAccount(FIRST_NAME_NO_6, LAST_NAME_NO_6, USERNAME_NO_6, EMAIL_NO_6,
             true, true, new ArrayList<>(List.of(RolesEnum.CLIENT)));
 
-
     @BeforeEach
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     void setup() {
         underTest.saveAndFlush(accountNo1);
         underTest.saveAndFlush(accountNo2);
@@ -50,12 +46,6 @@ class AccountRepositoryIntegrationTest extends IntegrationTestsBase {
         underTest.saveAndFlush(accountNo4);
         underTest.saveAndFlush(accountNo5);
         underTest.saveAndFlush(accountNo6);
-    }
-
-    @AfterEach
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
-    void clear() {
-        underTest.deleteAll();
     }
 
     @Test

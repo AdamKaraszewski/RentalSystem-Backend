@@ -1,0 +1,4 @@
+INSERT INTO ACCOUNTS (id, is_active, is_verified, version, username, password) VALUES ('00000000-0000-0000-0000-000000000001', true, true, 0, 'a_username_no_1', 'password');
+INSERT INTO ACCOUNT_ROLE (is_active, version, account_id, id, role_name) VALUES (true, 0, '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-1111-000000000001', 'CLIENT');
+INSERT INTO CLIENT_DATA (id, simple_column) VALUES ('00000000-0000-0000-1111-000000000001', 'simple_column_value');
+INSERT INTO PERSONAL_DATA (account_id, first_name, last_name, email) VALUES ('00000000-0000-0000-0000-000000000001', 'firstNameNoA', 'lastNameNoA', 'email.no1@example.com');

@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +61,7 @@ public class AccountService implements IAccountService {
                 'z' + 1, true, true, null, randomGenerator);
         VerificationToken verificationToken = new VerificationToken(tokenValue, account, tokenLifeTime);
         account.addRole(clientRole);
+
         accountRepository.saveAndFlush(account);
         verificationTokenRepository.saveAndFlush(verificationToken);
     }

@@ -4,7 +4,6 @@ import com.rental_manager.roomie.config.database.TransactionManagersIds;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.VerificationToken;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,17 +41,9 @@ class VerificationTokenRepositoryIntegrationTest extends IntegrationTestsBase {
     );
 
     @BeforeEach
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
     void setup() {
         accountRepository.saveAndFlush(account);
         underTest.saveAndFlush(verificationToken);
-    }
-
-    @AfterEach
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
-    void clear() {
-        underTest.deleteAll();
-        accountRepository.deleteAll();
     }
 
     @Test
@@ -80,5 +71,4 @@ class VerificationTokenRepositoryIntegrationTest extends IntegrationTestsBase {
 
         assertTrue(tokenFound.isPresent());
     }
-
 }

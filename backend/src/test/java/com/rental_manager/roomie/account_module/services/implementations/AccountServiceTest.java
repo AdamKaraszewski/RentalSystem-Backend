@@ -1,14 +1,11 @@
 package com.rental_manager.roomie.account_module.services.implementations;
 
-import com.rental_manager.roomie.AccountModuleTestUtility;
 import com.rental_manager.roomie.account_module.dtos.AccountDTO;
 import com.rental_manager.roomie.account_module.dtos.AccountOnPageDTO;
 import com.rental_manager.roomie.account_module.repositories.AccountRepository;
 import com.rental_manager.roomie.account_module.repositories.VerificationTokenRepository;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.Role;
-import com.rental_manager.roomie.entities.roles.Admin;
-import com.rental_manager.roomie.entities.roles.Landlord;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import com.rental_manager.roomie.exceptions.ExceptionMessages;
 import com.rental_manager.roomie.exceptions.business_logic_exceptions.*;
@@ -25,13 +22,10 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.rental_manager.roomie.AccountModuleTestUtility.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

@@ -6,17 +6,20 @@ import com.rental_manager.roomie.account_module.repositories.VerificationTokenRe
 import com.rental_manager.roomie.config.database.TransactionManagersIds;
 import com.rental_manager.roomie.entities.Account;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.rental_manager.roomie.config.database.InitDataSourceConfig.INIT_DS_NAME;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.rental_manager.roomie.AccountModuleTestUtility.*;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
 class AccountServiceIntegrationTest extends IntegrationTestsBase {
 
@@ -29,15 +32,17 @@ class AccountServiceIntegrationTest extends IntegrationTestsBase {
     @Autowired
     private AccountService underTest;
 
-    @AfterEach
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
-    void clean() {
-        verificationTokenRepository.deleteAll();
-        accountRepository.deleteAll();
-    }
+    private static final String CLEAR_SQL = "/account_service_it_clear.sql";
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
+    @Transactional(
+            transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
+    @Sql(scripts = CLEAR_SQL, executionPhase = AFTER_TEST_METHOD,
+            config = @SqlConfig(
+                    dataSource = INIT_DS_NAME,
+                    transactionManager = TransactionManagersIds.INIT_TX_MANAGER,
+                    transactionMode = ISOLATED
+            ))
     void registerClientTest() {
         Account accountToBeRegistered = createAccount(
                 FIRST_NAME_NO_1,

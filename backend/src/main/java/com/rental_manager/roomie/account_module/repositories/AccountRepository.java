@@ -23,9 +23,11 @@ public interface AccountRepository extends JpaRepository<Account, UUID>, JpaSpec
     @Transactional(propagation = Propagation.MANDATORY)
     Optional<Account> findById(UUID id);
 
+    @Override
     @Transactional(propagation = Propagation.MANDATORY)
     Account saveAndFlush(Account account);
 
-   @Transactional(propagation = Propagation.MANDATORY)
-   Page<Account> findAll(Specification<Account> spec, Pageable pageable);
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    Page<Account> findAll(Specification<Account> spec, Pageable pageable);
 }
