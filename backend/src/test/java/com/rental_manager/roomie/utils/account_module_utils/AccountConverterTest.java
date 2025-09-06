@@ -1,8 +1,6 @@
 package com.rental_manager.roomie.utils.account_module_utils;
 
-import com.rental_manager.roomie.AccountModuleTestUtility;
 import com.rental_manager.roomie.entities.Account;
-import com.rental_manager.roomie.entities.roles.Landlord;
 import com.rental_manager.roomie.entities.roles.RolesEnum;
 import org.junit.jupiter.api.Test;
 
