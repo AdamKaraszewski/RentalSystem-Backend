@@ -98,7 +98,8 @@ public class AccountModuleTestUtility {
 
     public static Account createAccount(String firstname, String lastname, String username, String email,
                                         boolean isVerified, boolean isActive, List<RolesEnum> roles) {
-        Account account = new Account(firstname, lastname, username, email, PASSWORD);
+        Account account = new Account(firstname, lastname, username, email);
+        account.setPassword(PASSWORD);
         account.setVerified(isVerified);
         account.setActive(isActive);
         for (RolesEnum role : roles) {

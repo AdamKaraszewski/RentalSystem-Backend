@@ -12,9 +12,6 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.rental_manager.roomie.config.database.InitDataSourceConfig.INIT_DS_NAME;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.rental_manager.roomie.AccountModuleTestUtility.*;
@@ -44,17 +41,14 @@ class AccountServiceIntegrationTest extends IntegrationTestsBase {
                     transactionMode = ISOLATED
             ))
     void registerClientTest() {
-        Account accountToBeRegistered = createAccount(
+        Account accountToBeRegistered = new Account(
                 FIRST_NAME_NO_1,
                 LAST_NAME_NO_1,
                 USERNAME_NO_1,
-                EMAIL_NO_1,
-                true,
-                true,
-                new ArrayList<>(List.of(RolesEnum.CLIENT))
+                EMAIL_NO_1
         );
 
-        underTest.registerClient(accountToBeRegistered);
+        underTest.registerClient(accountToBeRegistered, PASSWORD);
         var registeredAccount = accountRepository.findByEmail(EMAIL_NO_1);
         var verificationToken = verificationTokenRepository.findAll().getFirst();
 
@@ -63,7 +57,7 @@ class AccountServiceIntegrationTest extends IntegrationTestsBase {
         assertEquals(LAST_NAME_NO_1, registeredAccount.get().getLastName());
         assertEquals(USERNAME_NO_1, registeredAccount.get().getUsername());
         assertEquals(EMAIL_NO_1, registeredAccount.get().getEmail());
-        assertEquals(PASSWORD, registeredAccount.get().getPassword());
+        assertNotNull(registeredAccount.get().getPassword());
 
         assertEquals(1, registeredAccount.get().getRoles().size());
 

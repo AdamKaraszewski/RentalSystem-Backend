@@ -9,7 +9,7 @@ public class AccountConverter {
 
     public static Account convertRegisterClientDTOToAccount(RegisterClientDTO registerClientDTO) {
         return new Account(registerClientDTO.getFirstName(), registerClientDTO.getLastName(),
-                registerClientDTO.getUsername(), registerClientDTO.getEmail(), registerClientDTO.getPassword());
+                registerClientDTO.getUsername(), registerClientDTO.getEmail());
     }
 
     public static AccountOnPageDTO convertAccountToAccountOnPageDto(Account account) {

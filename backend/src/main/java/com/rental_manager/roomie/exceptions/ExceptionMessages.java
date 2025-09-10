@@ -34,4 +34,6 @@ public class ExceptionMessages {
     //BLOCK ACCOUNT
     public static final String ACCOUNT_ALREADY_BLOCKED = "account.already.blocked";
     public static final String ACCOUNT_ALREADY_ACTIVE = "account.already.active";
+
+    //
 }

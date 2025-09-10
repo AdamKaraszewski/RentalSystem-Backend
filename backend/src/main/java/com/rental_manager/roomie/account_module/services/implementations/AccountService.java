@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,23 +44,28 @@ public class AccountService implements IAccountService {
     private final AccountRepository accountRepository;
     private final VerificationTokenRepository verificationTokenRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     private final Random randomGenerator = new SecureRandom();
 
     public AccountService(@Value("${email.verification.token.life-time.minutes}") long tokenLifeTime,
                           AccountRepository accountRepository,
-                          VerificationTokenRepository verificationTokenRepository) {
+                          VerificationTokenRepository verificationTokenRepository,
+                          PasswordEncoder passwordEncoder) {
         this.tokenLifeTime = tokenLifeTime;
         this.accountRepository = accountRepository;
         this.verificationTokenRepository = verificationTokenRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, transactionManager = TransactionManagersIds.ACCOUNT_MODULE_TX_MANAGER)
-    public void registerClient(Account account) {
+    public void registerClient(Account account, String password) {
         Client clientRole = new Client(account);
         String tokenValue = RandomStringUtils.random(Constraints.EMAIL_VERIFICATION_TOKEN_LENGTH, '0',
                 'z' + 1, true, true, null, randomGenerator);
         VerificationToken verificationToken = new VerificationToken(tokenValue, account, tokenLifeTime);
+        account.setPassword(passwordEncoder.encode(password));
         account.addRole(clientRole);
 
         accountRepository.saveAndFlush(account);

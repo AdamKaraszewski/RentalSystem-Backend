@@ -26,7 +26,10 @@ public class RegisterAccountController implements IRegisterAccountController {
     @Override
     @PostMapping
     public ResponseEntity<Void> registerClientAccount(@RequestBody @Valid RegisterClientDTO registerClientDTO) {
-        accountService.registerClient(AccountConverter.convertRegisterClientDTOToAccount(registerClientDTO));
+        accountService.registerClient(
+                AccountConverter.convertRegisterClientDTOToAccount(registerClientDTO),
+                registerClientDTO.getPassword()
+        );
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

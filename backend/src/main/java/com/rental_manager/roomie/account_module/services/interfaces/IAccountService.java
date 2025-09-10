@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public interface IAccountService {
 
-    void registerClient(Account account);
+    void registerClient(Account account, String password);
 
     void addRole(UUID accountId, RolesEnum roleName) throws AccountNotFoundException, RoleAlreadyOwnedException;
 

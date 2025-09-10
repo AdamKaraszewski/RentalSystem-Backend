@@ -47,7 +47,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -66,7 +66,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -88,7 +88,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -111,7 +111,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -133,7 +133,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -155,7 +155,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -177,7 +177,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -199,7 +199,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -221,7 +221,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -243,7 +243,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -265,7 +265,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, null);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -287,7 +287,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, INVALID_EMAIL);
         data.put(PASSWORD_FILED, PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -309,7 +309,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, null);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -331,7 +331,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, TO_SHORT_PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)
@@ -353,7 +353,7 @@ class RegisterAccountControllerTest {
         data.put(EMAIL_FIELD, EMAIL_NO_1);
         data.put(PASSWORD_FILED, TO_LONG_PASSWORD);
         String requestBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        doNothing().when(accountService).registerClient(any());
+        doNothing().when(accountService).registerClient(any(), any());
 
         mockMvc.perform(
                 post(BASE_ENDPOINT)

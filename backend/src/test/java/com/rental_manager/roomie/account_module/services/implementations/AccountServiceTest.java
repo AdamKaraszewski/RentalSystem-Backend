@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +38,18 @@ class AccountServiceTest {
     @Mock
     private VerificationTokenRepository verificationTokenRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     private AccountService underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new AccountService(VERIFICATION_TOKEN_LIFE_TIME, accountRepository, verificationTokenRepository);
+        underTest = new AccountService(
+                VERIFICATION_TOKEN_LIFE_TIME,
+                accountRepository,
+                verificationTokenRepository,
+                passwordEncoder);
     }
 
     @Test

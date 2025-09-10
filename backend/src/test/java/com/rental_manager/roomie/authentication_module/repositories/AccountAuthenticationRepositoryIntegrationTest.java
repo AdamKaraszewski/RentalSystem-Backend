@@ -22,8 +22,8 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 
 class AccountAuthenticationRepositoryIntegrationTest extends IntegrationTestsBase {
 
-    private static final String SETUP_SQL = "/account_authentication_repository_it_init.sql";
-    private static final String CLEAR_SQL = "/account_authentication_repository_it_clear.sql";
+    private static final String SETUP_SQL = "/account_authentication_it_init.sql";
+    private static final String CLEAR_SQL = "/account_authentication_it_clear.sql";
 
     @Autowired
     private AccountAuthenticationRepository underTest;
@@ -46,12 +46,12 @@ class AccountAuthenticationRepositoryIntegrationTest extends IntegrationTestsBas
                     transactionMode = ISOLATED
             ))
     void derivedQueryFindByEmailReturnOptionalContainsAccountWithSpecifiedEmail() {
-        Account accountFound = underTest.findByEmail(EMAIL_NO_1).get();
+        Optional<Account> accountFound = underTest.findByEmail(EMAIL_NO_1);
 
-        assertNotNull(accountFound);
-        assertEquals(FIRST_NAME_NO_1, accountFound.getFirstName());
-        assertEquals(LAST_NAME_NO_1, accountFound.getLastName());
-        assertEquals(USERNAME_NO_1, accountFound.getUsername());
+        assertTrue(accountFound.isPresent());
+        assertEquals(FIRST_NAME_NO_1, accountFound.get().getFirstName());
+        assertEquals(LAST_NAME_NO_1, accountFound.get().getLastName());
+        assertEquals(USERNAME_NO_1, accountFound.get().getUsername());
     }
 
     @Test

@@ -64,12 +64,11 @@ public class Account extends AbstractEntity implements UserDetails {
         roles.add(role);
     }
 
-    public Account(String firstName, String lastName, String username, String email, String password) {
+    public Account(String firstName, String lastName, String username, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.email = email;
-        this.password = password;
     }
 
     @Override

@@ -44,7 +44,7 @@ class AccountConverterTest {
         assertEquals(EMAIL_NO_1, actual.getEmail());
         assertTrue(actual.isActive());
         assertFalse(actual.isVerified());
-        assertEquals(PASSWORD, actual.getPassword());
+        assertNull(actual.getPassword());
     }
 
     @Test
@@ -58,7 +58,6 @@ class AccountConverterTest {
 
     @Test
     void convertAccountToAccountDTO() {
-
         var actual = AccountConverter.convertAccountToAccountDto(account_no_2);
         assertNotNull(actual);
         assertEquals(FIRST_NAME_NO_2, actual.getFirstName());
